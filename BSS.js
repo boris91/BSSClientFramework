@@ -2,24 +2,24 @@
 	var _doc = win.document,
 		_head = _doc.head,
 		_bss = {},
-		_bssModulesNsSeparator = "/",
 		_bssModules = (function () {
 			var _defined = {},
 				_callbacks = {},
 				_loadModule = function (moduleFullName, callback) {
-					var scriptElem;
+					var modulePath, scriptElem;
 					if (!_defined[moduleFullName]) {
 						if (callback) {
 							_callbacks[moduleFullName] = callback;
 						}
 
+						modulePath = moduleFullName.replace(/\./g, "/") + ".js";
 						scriptElem = _doc.createElement("SCRIPT");
 						scriptElem.setAttribute("type", "text/javascript");
 						scriptElem.setAttribute("charset", "utf-8");
 						scriptElem.addEventListener("load", function () {
 							_head.removeChild(scriptElem);
 						}, false);
-						scriptElem.setAttribute("src", moduleFullName + ".js");
+						scriptElem.setAttribute("src", modulePath);
 						_head.appendChild(scriptElem);
 					}
 				},
@@ -47,7 +47,7 @@
 					}
 				},
 				_registerModule = function (module, moduleFullName, moduleArgs) {
-					var modulePathChain = moduleFullName.split(_bssModulesNsSeparator),
+					var modulePathChain = moduleFullName.split("."),
 						ancestorsCount = modulePathChain.length - 1,
 						moduleName = modulePathChain[ancestorsCount],
 						parentObj = _bss,
@@ -78,7 +78,6 @@
 				};
 
 			return {
-				namespacesSeparator: _bssModulesNsSeparator,
 				define: function (deps, moduleFullName, module) {
 					if (!_defined[moduleFullName]) {
 						_defined[moduleFullName] = true;
