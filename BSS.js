@@ -5,22 +5,47 @@
 		_bssModules = (function () {
 			var _defined = {},
 				_callbacks = {},
+				_getFilePath = function (moduleFullName, fileExt) {
+					return moduleFullName.replace(/\./g, "/") + "." + fileExt;
+				},
+				_isModuleAnHtmlTemplate = function (moduleFullName) {
+					return (0 === moduleFullName.indexOf("HTML:"));
+				},
+				_loadHtmlTemplate = function (templateFullName) {
+					var iframeElem = document.createElement("IFRAME");
+					iframeElem.setAttribute("style", "position: absolute; left: -99999px; top: -99999px; width: 0px; height: 0px; visibility: hidden;");
+					iframeElem.setAttribute("src", _getFilePath(templateFullName, "html"));
+					iframeElem.addEventListener("load", function () {
+						var htmlTemplate = iframeElem.contentWindow.document.body.innerHTML;
+						_head.removeChild(iframeElem);
+						_registerModule(templateFullName, htmlTemplate);
+					}, false);
+					_head.appendChild(iframeElem);
+				},
+				_loadJs = function (moduleFullName, callback) {
+					var scriptElem = _doc.createElement("SCRIPT");
+					scriptElem.setAttribute("type", "text/javascript");
+					scriptElem.setAttribute("charset", "utf-8");
+					scriptElem.addEventListener("load", function () {
+						_head.removeChild(scriptElem);
+					}, false);
+					scriptElem.setAttribute("src", _getFilePath(moduleFullName, "js"));
+					_head.appendChild(scriptElem);
+				},
 				_loadModule = function (moduleFullName, callback) {
-					var modulePath, scriptElem;
+					var loadExecuter = _loadJs;
+
+					if (_isModuleAnHtmlTemplate(moduleFullName)) {
+						moduleFullName = moduleFullName.substr(5);
+						loadExecuter = _loadHtmlTemplate;
+					}
+
 					if (!_defined[moduleFullName]) {
 						if (callback) {
 							_callbacks[moduleFullName] = callback;
 						}
 
-						modulePath = moduleFullName.replace(/\./g, "/") + ".js";
-						scriptElem = _doc.createElement("SCRIPT");
-						scriptElem.setAttribute("type", "text/javascript");
-						scriptElem.setAttribute("charset", "utf-8");
-						scriptElem.addEventListener("load", function () {
-							_head.removeChild(scriptElem);
-						}, false);
-						scriptElem.setAttribute("src", modulePath);
-						_head.appendChild(scriptElem);
+						loadExecuter(moduleFullName, callback);
 					}
 				},
 				_loadModules = function (modulesFullNames, callback) {
@@ -28,11 +53,11 @@
 						loadedModulesCount = 0,
 						callbackArgs = [],
 						getEachModuleCallback = function (index) {
-							return callback && function (moduleCtor) {
-								callbackArgs[index] = moduleCtor;
+							return callback && function (module) {
+								callbackArgs[index] = module;
 								++loadedModulesCount;
 								if (loadedModulesCount === modulesCount) {
-									callback(callbackArgs);
+									callback.apply(win, callbackArgs);
 								}
 							} || null;
 						},
@@ -43,15 +68,14 @@
 					}
 
 					if (callback && 0 === modulesCount) {
-						callback(callbackArgs);
+						callback.apply(win, callbackArgs);
 					}
 				},
-				_registerModule = function (module, moduleFullName, moduleArgs) {
+				_registerModule = function (moduleFullName, module) {
 					var modulePathChain = moduleFullName.split("."),
 						ancestorsCount = modulePathChain.length - 1,
 						moduleName = modulePathChain[ancestorsCount],
 						parentObj = _bss,
-						moduleCtor = module.apply(win, moduleArgs),
 						callback = _callbacks[moduleFullName],
 						i, ancestorName;
 
@@ -68,21 +92,22 @@
 
 					Object.defineProperty(parentObj, moduleName, {
 						writable: false,
-						value: moduleCtor
+						value: module
 					});
 
 					if (callback) {
 						delete _callbacks[moduleFullName];
-						callback(moduleCtor);
+						callback([module]);
 					}
 				};
 
 			return {
-				define: function (deps, moduleFullName, module) {
+				define: function (deps, moduleFullName, moduleGetter) {
 					if (!_defined[moduleFullName]) {
 						_defined[moduleFullName] = true;
 						_loadModules(deps, function (moduleArgs) {
-							_registerModule(module, moduleFullName, moduleArgs);
+							var moduleCtor = moduleGetter.apply(win, moduleArgs);
+							_registerModule(moduleFullName, moduleCtor);
 						});
 					}
 				},
