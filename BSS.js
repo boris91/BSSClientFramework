@@ -6,7 +6,47 @@
 		_bssModules = (function () {
 			var _defined = {},
 				_callbacks = {},
-				_depsLoadedCallback = function (module, moduleFullName, moduleArgs) {
+				_loadModule = function (moduleFullName, callback) {
+					var scriptElem;
+					if (!_defined[moduleFullName]) {
+						if (callback) {
+							_callbacks[moduleFullName] = callback;
+						}
+
+						scriptElem = _doc.createElement("SCRIPT");
+						scriptElem.setAttribute("type", "text/javascript");
+						scriptElem.setAttribute("charset", "utf-8");
+						scriptElem.addEventListener("load", function () {
+							_head.removeChild(scriptElem);
+						}, false);
+						scriptElem.setAttribute("src", moduleFullName + ".js");
+						_head.appendChild(scriptElem);
+					}
+				},
+				_loadModules = function (modulesFullNames, callback) {
+					var modulesCount = modulesFullNames && modulesFullNames.length || 0,
+						loadedModulesCount = 0,
+						callbackArgs = [],
+						getEachModuleCallback = function (index) {
+							return callback && function (moduleCtor) {
+								callbackArgs[index] = moduleCtor;
+								++loadedModulesCount;
+								if (loadedModulesCount === modulesCount) {
+									callback(callbackArgs);
+								}
+							} || null;
+						},
+						i;
+
+					for (i = 0; i < modulesCount; i++) {
+						_loadModule(modulesFullNames[i], getEachModuleCallback(i));
+					}
+
+					if (callback && 0 === modulesCount) {
+						callback(callbackArgs);
+					}
+				},
+				_registerModule = function (module, moduleFullName, moduleArgs) {
 					var modulePathChain = moduleFullName.split(_bssModulesNsSeparator),
 						ancestorsCount = modulePathChain.length - 1,
 						moduleName = modulePathChain[ancestorsCount],
@@ -40,56 +80,21 @@
 			return {
 				namespacesSeparator: _bssModulesNsSeparator,
 				define: function (deps, moduleFullName, module) {
-					var depsCount = deps && deps.length || 0,
-						readyDepsCount = 0,
-						moduleArgs = [],
-						getModuleArgSetter = function (index) {
-							return function (value) {
-								moduleArgs[index] = value;
-								++readyDepsCount;
-								if (readyDepsCount === depsCount) {
-									_depsLoadedCallback(module, moduleFullName, moduleArgs);
-								}
-							};
-						},
-						i;
-
 					if (!_defined[moduleFullName]) {
 						_defined[moduleFullName] = true;
-						if (depsCount) {
-							for (i = 0; i < depsCount; i++) {
-								this.require(deps[i], getModuleArgSetter(i));
-							}
-						} else {
-							_depsLoadedCallback(module, moduleFullName, moduleArgs);
-						}
+						_loadModules(deps, function (moduleArgs) {
+							_registerModule(module, moduleFullName, moduleArgs);
+						});
 					}
 				},
-				require: function (moduleFullName, callback) {
-					var scriptElem;
-					if (!_defined[moduleFullName]) {
-						if (callback) {
-							_callbacks[moduleFullName] = callback;
-						}
-
-						scriptElem = _doc.createElement("SCRIPT");
-						scriptElem.setAttribute("type", "text/javascript");
-						scriptElem.setAttribute("charset", "utf-8");
-						scriptElem.addEventListener("load", function () {
-							_head.removeChild(scriptElem);
-						}, false);
-						scriptElem.setAttribute("src", moduleFullName + ".js");
-						_head.appendChild(scriptElem);
-					}
+				require: function (requiredCode, callback) {
+					var requireExecuter = ("string" === typeof requiredCode) ? _loadModule : _loadModules;
+					requireExecuter(requiredCode, callback);
 				}
 			};
-		})(),
-		basicDepsCount = basicDeps && basicDeps.length || 0,
-		j;
+		})();
 
-	for (j = 0; j < basicDepsCount; j++) {
-		_bssModules.require(basicDeps[j]);
-	}
+	_bssModules.require(basicDeps);
 
 	Object.defineProperty(_bss, "modules", {
 		writable: false,
@@ -100,11 +105,4 @@
 		writable: false,
 		value: _bss
 	});
-})(window, [
-	"mvc",
-	"ui",
-	"events",
-	"exceptions",
-	"ajax",
-	"validation"
-]);
+})(window);
