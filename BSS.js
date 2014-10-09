@@ -129,4 +129,6 @@
 		writable: false,
 		value: _bss
 	});
-})(window);
+})(window, [
+	"keys"
+]);
