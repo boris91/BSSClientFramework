@@ -102,7 +102,7 @@
 				};
 
 			return {
-				define: function (deps, moduleFullName, moduleGetter) {
+				define: function (moduleFullName, deps, moduleGetter) {
 					if (!_defined[moduleFullName]) {
 						_defined[moduleFullName] = true;
 						_loadModules(deps, function (moduleArgs) {
@@ -130,5 +130,6 @@
 		value: _bss
 	});
 })(window, [
-	"keys"
+	"keys",
+	"identifiers"
 ]);
