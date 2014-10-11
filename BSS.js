@@ -116,13 +116,44 @@
 					requireExecuter(requiredCode, callback);
 				}
 			};
+		})(),
+		_bssModules_preloadFake = (function () {
+			var _argsForDeferred = [],
+				_fakeRequireAllowed = true;
+
+			return {
+				define: function (moduleFullName, deps, moduleGetter) {
+					_bssModules.define.apply(_bssModules, arguments);
+				},
+				require: function (requiredCode, callback) {
+					if (_fakeRequireAllowed) {
+						_argsForDeferred[_argsForDeferred.length] = [requiredCode, callback];
+					} else {
+						_bssModules.require.apply(_bssModules, arguments);
+					}
+				},
+				requireDeferred: function () {
+					var argsForDeferredCount = _argsForDeferred.length,
+						i;
+					_fakeRequireAllowed = false;
+					for (i = 0; i < argsForDeferredCount; i++) {
+						_bssModules.require.apply(_bssModules, _argsForDeferred[i]);
+					}
+				}
+			};
 		})();
 
-	_bssModules.require(basicDeps);
+	_bssModules.require(basicDeps, function () {
+		_bssModules_preloadFake.requireDeferred();
+		Object.defineProperty(_bss, "modules", {
+			writable: false,
+			value: _bssModules
+		});
+	});
 
 	Object.defineProperty(_bss, "modules", {
-		writable: false,
-		value: _bssModules
+		writable: true,
+		value: _bssModules_preloadFake
 	});
 
 	Object.defineProperty(win, "BSS", {
