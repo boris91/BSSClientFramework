@@ -11,14 +11,39 @@
 				_isModuleAnHtmlTemplate = function (moduleFullName) {
 					return (0 === moduleFullName.indexOf("HTML:"));
 				},
+				_getHtmlTemplateEngine = function (templateString) {
+					var processedTemplateString = templateString.replace(/[\r\t\n]/g, " ").split("<%").join("\t").replace(/((^|%>)[^\t]*)'/g, "$1\r").replace(/\t=(.*?)%>/g, "',$1,'").split("\t").join("');").split("%>").join("p.push('").split("\r").join("\\'").replace(/\"/g, "\\\"");
+					return new win.Function("objectToShow", "targetContainerId",
+						"var resultHtml = [],\n" +
+						"	print = function () {\n" +
+						"		resultHtml.push.apply(resultHtml,arguments);\n" +
+						"	},\n" +
+						"	targetContainer;\n\n" +
+
+						"with (objectToShow) {\n" +
+						"	resultHtml.push('" + processedTemplateString + "');\n" +
+						"}\n\n" +
+
+						"resultHtml = resultHtml.join('');\n\n" +
+
+						"if (targetContainerId) {\n" +
+						"	targetContainer = BSS.document.getElementById(targetContainerId);\n" +
+						"	if (targetContainer) {\n" +
+						"		targetContainer.innerHTML = resultHtml;\n" +
+						"	}\n" +
+						"}\n\n" +
+
+						"return resultHtml;");
+				},
 				_loadHtmlTemplate = function (templateFullName) {
 					var iframeElem = document.createElement("IFRAME");
-					iframeElem.setAttribute("style", "position: absolute; left: -99999px; top: -99999px; width: 0px; height: 0px; visibility: hidden;");
+					iframeElem.setAttribute("style", "position: absolute; left: 0px; top: 0px; width: 0px; height: 0px; visibility: hidden;");
 					iframeElem.setAttribute("src", _getFilePath(templateFullName, "html"));
 					iframeElem.addEventListener("load", function () {
-						var htmlTemplate = iframeElem.contentWindow.document.body.innerHTML;
+						var templateString = iframeElem.contentWindow.document.body.innerHTML,
+							templateEngine = _getHtmlTemplateEngine(templateString);
 						_head.removeChild(iframeElem);
-						_registerModule(templateFullName, htmlTemplate);
+						_registerModule(templateFullName, templateEngine);
 					}, false);
 					_head.appendChild(iframeElem);
 				},
@@ -151,9 +176,23 @@
 		});
 	});
 
-	Object.defineProperty(_bss, "modules", {
-		writable: true,
-		value: _bssModules_preloadFake
+	Object.defineProperties(_bss, {
+		"window": {
+			writable: false,
+			value: win
+		},
+		"document": {
+			writable: false,
+			value: _doc
+		},
+		"head": {
+			writable: false,
+			value: _head
+		},
+		"modules": {
+			writable: true,
+			value: _bssModules_preloadFake
+		}
 	});
 
 	Object.defineProperty(win, "BSS", {
