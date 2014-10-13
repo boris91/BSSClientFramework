@@ -11,39 +11,15 @@
 				_isModuleAnHtmlTemplate = function (moduleFullName) {
 					return (0 === moduleFullName.indexOf("HTML:"));
 				},
-				_getHtmlTemplateEngine = function (templateString) {
-					var processedTemplateString = templateString.replace(/[\r\t\n]/g, " ").split("<%").join("\t").replace(/((^|%>)[^\t]*)'/g, "$1\r").replace(/\t=(.*?)%>/g, "',$1,'").split("\t").join("');").split("%>").join("p.push('").split("\r").join("\\'").replace(/\"/g, "\\\"");
-					return new win.Function("objectToShow", "targetContainerId",
-						"var resultHtml = [],\n" +
-						"	print = function () {\n" +
-						"		resultHtml.push.apply(resultHtml,arguments);\n" +
-						"	},\n" +
-						"	targetContainer;\n\n" +
-
-						"with (objectToShow) {\n" +
-						"	resultHtml.push('" + processedTemplateString + "');\n" +
-						"}\n\n" +
-
-						"resultHtml = resultHtml.join('');\n\n" +
-
-						"if (targetContainerId) {\n" +
-						"	targetContainer = BSS.document.getElementById(targetContainerId);\n" +
-						"	if (targetContainer) {\n" +
-						"		targetContainer.innerHTML = resultHtml;\n" +
-						"	}\n" +
-						"}\n\n" +
-
-						"return resultHtml;");
-				},
 				_loadHtmlTemplate = function (templateFullName) {
 					var iframeElem = document.createElement("IFRAME");
 					iframeElem.setAttribute("style", "position: absolute; left: 0px; top: 0px; width: 0px; height: 0px; visibility: hidden;");
 					iframeElem.setAttribute("src", _getFilePath(templateFullName, "html"));
 					iframeElem.addEventListener("load", function () {
 						var templateString = iframeElem.contentWindow.document.body.innerHTML,
-							templateEngine = _getHtmlTemplateEngine(templateString);
+							htmlTemplateEngine = BSS.templateEngine(templateString);
 						_head.removeChild(iframeElem);
-						_registerModule(templateFullName, templateEngine);
+						_registerModule(templateFullName, htmlTemplateEngine);
 					}, false);
 					_head.appendChild(iframeElem);
 				},
@@ -200,6 +176,7 @@
 		value: _bss
 	});
 })(window, [
+	"templateEngine",
 	"keys",
 	"identifiers"
 ]);
