@@ -24,7 +24,14 @@ BSS.modules.define("templateEngine", null, function () {
 		};
 
 	return function (templateString) {
-		var processedTemplateString = templateString.replace(/[\r\t\n]/g, " ").split("<%").join("\t").replace(/((^|%>)[^\t]*)'/g, "$1\r").replace(/\t=(.*?)%>/g, "',$1,'").split("\t").join("');").split("%>").join("p.push('").split("\r").join("\\'").replace(/\"/g, "\\\"");
+		var processedTemplateString = templateString.replace(/[\r\t\n]/g, " ");
+		processedTemplateString = processedTemplateString.split("&lt;%").join("<%");
+		processedTemplateString = processedTemplateString.split("%&gt;").join("%>");
+		processedTemplateString = processedTemplateString.split("<%").join("\t");
+		processedTemplateString = processedTemplateString.replace(/((^|%>)[^\t]*)'/g, "$1\r").replace(/\t=(.*?)%>/g, "',$1,'");
+		processedTemplateString = processedTemplateString.split("\t").join("');");
+		processedTemplateString = processedTemplateString.split("%>").join("resultHtml.push('");
+		processedTemplateString = processedTemplateString.split("\r").join("\\'");
 		return _getTemplateEngine(processedTemplateString);
 	};
 });

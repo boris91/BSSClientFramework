@@ -23,7 +23,7 @@
 					}, false);
 					_head.appendChild(iframeElem);
 				},
-				_loadJs = function (moduleFullName, callback) {
+				_loadJs = function (moduleFullName) {
 					var scriptElem = _doc.createElement("SCRIPT");
 					scriptElem.setAttribute("type", "text/javascript");
 					scriptElem.setAttribute("charset", "utf-8");
@@ -46,7 +46,7 @@
 							_callbacks[moduleFullName] = callback;
 						}
 
-						loadExecuter(moduleFullName, callback);
+						loadExecuter(moduleFullName);
 					}
 				},
 				_loadModules = function (modulesFullNames, callback) {
@@ -98,7 +98,7 @@
 
 					if (callback) {
 						delete _callbacks[moduleFullName];
-						callback([module]);
+						callback(module);
 					}
 				};
 
@@ -106,8 +106,8 @@
 				define: function (moduleFullName, deps, moduleGetter) {
 					if (!_defined[moduleFullName]) {
 						_defined[moduleFullName] = true;
-						_loadModules(deps, function (moduleArgs) {
-							var moduleCtor = moduleGetter.apply(win, moduleArgs);
+						_loadModules(deps, function () {
+							var moduleCtor = moduleGetter.apply(win, arguments);
 							_registerModule(moduleFullName, moduleCtor);
 						});
 					}
@@ -176,6 +176,8 @@
 		value: _bss
 	});
 })(window, [
+	"routes",
+	"ajax",
 	"templateEngine",
 	"keys",
 	"identifiers"

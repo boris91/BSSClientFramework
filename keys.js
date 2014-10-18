@@ -67,7 +67,7 @@
 		keyName;
 
 	for (keyName in keysSet) {
-		Object.defineProperty(_bssKeys, keyName, {
+		BSS.window.Object.defineProperty(_bssKeys, keyName, {
 			writable: false,
 			value: keysSet[keyName]
 		});
