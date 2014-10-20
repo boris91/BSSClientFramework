@@ -1,12 +1,26 @@
-﻿(function (win, basicDeps) {
-	var _doc = win.document,
+﻿(function (_win, _coreNamespace, _coreModules) {
+	var _doc = _win.document,
 		_head = _doc.head,
 		_bss = {},
 		_bssModules = (function () {
-			var _defined = {},
+			var _definedModules = {},
+				_registeredNamespaces = {},
 				_callbacks = {},
-				_getFilePath = function (moduleFullName, fileExt) {
-					return moduleFullName.replace(/\./g, "/") + "." + fileExt;
+				_getModuleNameWithNamespace = function (moduleFullName) {
+					var modulePathChain = moduleFullName.split("."),
+						nsName;
+					for (nsName in _registeredNamespaces) {
+						if (nsName === modulePathChain[0]) {
+							modulePathChain[0] = _registeredNamespaces[nsName];
+							moduleFullName = modulePathChain.join(".");
+							break;
+						}
+					}
+					return moduleFullName;
+				},
+				_getModuleFilePath = function (moduleFullName, fileExt) {
+					var moduleFullNameWithNamespace = _getModuleNameWithNamespace(moduleFullName);
+					return moduleFullNameWithNamespace.replace(/\./g, "/") + "." + fileExt;
 				},
 				_isModuleAnHtmlTemplate = function (moduleFullName) {
 					return (0 === moduleFullName.indexOf("HTML:"));
@@ -14,7 +28,7 @@
 				_loadHtmlTemplate = function (templateFullName) {
 					var iframeElem = document.createElement("IFRAME");
 					iframeElem.setAttribute("style", "position: absolute; left: 0px; top: 0px; width: 0px; height: 0px; visibility: hidden;");
-					iframeElem.setAttribute("src", _getFilePath(templateFullName, "html"));
+					iframeElem.setAttribute("src", _getModuleFilePath(templateFullName, "html"));
 					iframeElem.addEventListener("load", function () {
 						var templateString = iframeElem.contentWindow.document.body.innerHTML,
 							htmlTemplateEngine = BSS.templateEngine(templateString);
@@ -30,7 +44,7 @@
 					scriptElem.addEventListener("load", function () {
 						_head.removeChild(scriptElem);
 					}, false);
-					scriptElem.setAttribute("src", _getFilePath(moduleFullName, "js"));
+					scriptElem.setAttribute("src", _getModuleFilePath(moduleFullName, "js"));
 					_head.appendChild(scriptElem);
 				},
 				_loadModule = function (moduleFullName, callback) {
@@ -41,7 +55,7 @@
 						loadExecuter = _loadHtmlTemplate;
 					}
 
-					if (!_defined[moduleFullName]) {
+					if (!_definedModules[moduleFullName]) {
 						if (callback) {
 							_callbacks[moduleFullName] = callback;
 						}
@@ -58,7 +72,7 @@
 								callbackArgs[index] = module;
 								++loadedModulesCount;
 								if (loadedModulesCount === modulesCount) {
-									callback.apply(win, callbackArgs);
+									callback.apply(_win, callbackArgs);
 								}
 							} || null;
 						},
@@ -69,7 +83,7 @@
 					}
 
 					if (callback && 0 === modulesCount) {
-						callback.apply(win, callbackArgs);
+						callback.apply(_win, callbackArgs);
 					}
 				},
 				_registerModule = function (moduleFullName, module) {
@@ -82,16 +96,18 @@
 
 					for (i = 0; i < ancestorsCount; i++) {
 						ancestorName = modulePathChain[i];
-						if (!parentObj[ancestorName]) {
-							Object.defineProperty(parentObj, ancestorName, {
-								writable: false,
-								value: {}
-							});
+						if (ancestorName) {
+							if (!parentObj[ancestorName]) {
+								_win.Object.defineProperty(parentObj, ancestorName, {
+									writable: false,
+									value: {}
+								});
+							}
+							parentObj = parentObj[ancestorName];
 						}
-						parentObj = parentObj[ancestorName];
 					}
 
-					Object.defineProperty(parentObj, moduleName, {
+					_win.Object.defineProperty(parentObj, moduleName, {
 						writable: false,
 						value: module
 					});
@@ -103,11 +119,14 @@
 				};
 
 			return {
+				registerNamespace: function (name, path) {
+					_registeredNamespaces[name] = path;
+				},
 				define: function (moduleFullName, deps, moduleGetter) {
-					if (!_defined[moduleFullName]) {
-						_defined[moduleFullName] = true;
+					if (!_definedModules[moduleFullName]) {
+						_definedModules[moduleFullName] = true;
 						_loadModules(deps, function () {
-							var moduleCtor = moduleGetter.apply(win, arguments);
+							var moduleCtor = moduleGetter.apply(_win, arguments);
 							_registerModule(moduleFullName, moduleCtor);
 						});
 					}
@@ -123,6 +142,9 @@
 				_fakeRequireAllowed = true;
 
 			return {
+				registerNamespace: function (name, path) {
+					_bssModules.registerNamespace.apply(_bssModules, arguments);
+				},
 				define: function (moduleFullName, deps, moduleGetter) {
 					_bssModules.define.apply(_bssModules, arguments);
 				},
@@ -144,18 +166,19 @@
 			};
 		})();
 
-	_bssModules.require(basicDeps, function () {
+	_bssModules.registerNamespace("", _coreNamespace || "");
+	_bssModules.require(_coreModules, function () {
 		_bssModules_preloadFake.requireDeferred();
-		Object.defineProperty(_bss, "modules", {
+		_win.Object.defineProperty(_bss, "modules", {
 			writable: false,
 			value: _bssModules
 		});
 	});
 
-	Object.defineProperties(_bss, {
+	_win.Object.defineProperties(_bss, {
 		"window": {
 			writable: false,
-			value: win
+			value: _win
 		},
 		"document": {
 			writable: false,
@@ -171,14 +194,14 @@
 		}
 	});
 
-	Object.defineProperty(win, "BSS", {
+	_win.Object.defineProperty(_win, "BSS", {
 		writable: false,
 		value: _bss
 	});
-})(window, [
-	"routes",
-	"ajax",
-	"templateEngine",
-	"keys",
-	"identifiers"
+})(window, "Core", [
+	".routes",
+	".ajax",
+	".templateEngine",
+	".keyCodes",
+	".idsGenerator"
 ]);

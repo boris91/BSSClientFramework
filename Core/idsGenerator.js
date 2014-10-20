@@ -1,4 +1,4 @@
-BSS.modules.define("identifiers", null, function () {
+BSS.modules.define(".idsGenerator", null, function () {
 	var _idLength = 32,
 		_portionCount = 100,
 		_ids = [],

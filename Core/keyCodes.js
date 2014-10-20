@@ -1,4 +1,4 @@
-﻿BSS.modules.define("keys", null, function () {
+﻿BSS.modules.define(".keyCodes", null, function () {
 	var _bssKeys = {},
 		keysSet = {
 			BACKSPACE: 8,

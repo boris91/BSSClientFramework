@@ -1,4 +1,4 @@
-﻿BSS.modules.define("ajax", null, function () {
+﻿BSS.modules.define(".ajax", null, function () {
 
 	var _xhrs = {},
 		_createXmlHttpRequest = function (params) {
@@ -13,7 +13,7 @@
 				xhrQuery += queryOption + "=" + xhrQueryOptions[queryOption] + "&";
 			}
 
-			xhr.id = BSS.identifiers.getId();
+			xhr.id = BSS.idsGenerator.getId();
 			_xhrs[xhr.id] = xhr;
 
 			xhr.open(params.method, params.url + xhrQuery, xhrIsAsync);

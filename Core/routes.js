@@ -1,4 +1,4 @@
-﻿BSS.modules.define("routes", null, function () {
+﻿BSS.modules.define(".routes", null, function () {
 	var _bssRoutes = {},
 		routesSet = {
 			/*
