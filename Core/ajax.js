@@ -19,7 +19,7 @@
 			xhr.open(params.method, params.url + xhrQuery, xhrIsAsync);
 
 			if (xhrIsAsync) {
-				xhr.onreadystatechange = _getAsyncReadyStateChangeHandler(xhr, params)
+				xhr.onreadystatechange = _getAsyncReadyStateChangeHandler(xhr, params);
 			}
 
 			for (headerName in xhrHeaders) {

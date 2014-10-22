@@ -22,37 +22,43 @@
 					var moduleFullNameWithNamespace = _getModuleNameWithNamespace(moduleFullName);
 					return moduleFullNameWithNamespace.replace(/\./g, "/") + "." + fileExt;
 				},
-				_isModuleAnHtmlTemplate = function (moduleFullName) {
-					return (0 === moduleFullName.indexOf("HTML:"));
-				},
-				_loadHtmlTemplate = function (templateFullName) {
-					var iframeElem = document.createElement("IFRAME");
-					iframeElem.setAttribute("style", "position: absolute; left: 0px; top: 0px; width: 0px; height: 0px; visibility: hidden;");
-					iframeElem.setAttribute("src", _getModuleFilePath(templateFullName, "html"));
-					iframeElem.addEventListener("load", function () {
-						var templateString = iframeElem.contentWindow.document.body.innerHTML,
-							htmlTemplateEngine = BSS.templateEngine(templateString);
-						_head.removeChild(iframeElem);
-						_registerModule(templateFullName, htmlTemplateEngine);
-					}, false);
-					_head.appendChild(iframeElem);
-				},
-				_loadJs = function (moduleFullName) {
-					var scriptElem = _doc.createElement("SCRIPT");
-					scriptElem.setAttribute("type", "text/javascript");
-					scriptElem.setAttribute("charset", "utf-8");
-					scriptElem.addEventListener("load", function () {
-						_head.removeChild(scriptElem);
-					}, false);
-					scriptElem.setAttribute("src", _getModuleFilePath(moduleFullName, "js"));
-					_head.appendChild(scriptElem);
+				_loaders = {
+					css: function (stylesheetFullName) {
+						_registerModule(stylesheetFullName, "@import url(" + _getModuleFilePath(stylesheetFullName, "css") + ");");
+					},
+					html: function (templateFullName) {
+						var iframeElem = _doc.createElement("IFRAME");
+						iframeElem.setAttribute("style", "position: absolute; left: 0px; top: 0px; width: 0px; height: 0px; visibility: hidden;");
+						iframeElem.setAttribute("src", _getModuleFilePath(templateFullName, "html"));
+						iframeElem.addEventListener("load", function () {
+							var templateString = iframeElem.contentWindow.document.body.innerHTML,
+								htmlTemplateEngine = BSS.templateEngine(templateString);
+							_head.removeChild(iframeElem);
+							_registerModule(templateFullName, htmlTemplateEngine);
+						}, false);
+						_head.appendChild(iframeElem);
+					},
+					js: function (moduleFullName) {
+						var scriptElem = _doc.createElement("SCRIPT");
+						scriptElem.setAttribute("type", "text/javascript");
+						scriptElem.setAttribute("charset", "utf-8");
+						scriptElem.addEventListener("load", function () {
+							_head.removeChild(scriptElem);
+						}, false);
+						scriptElem.setAttribute("src", _getModuleFilePath(moduleFullName, "js"));
+						_head.appendChild(scriptElem);
+					}
 				},
 				_loadModule = function (moduleFullName, callback) {
-					var loadExecuter = _loadJs;
+					var loader = _loaders.js,
+						loaderName;
 
-					if (_isModuleAnHtmlTemplate(moduleFullName)) {
-						moduleFullName = moduleFullName.substr(5);
-						loadExecuter = _loadHtmlTemplate;
+					for (loaderName in _loaders) {
+						if (0 === moduleFullName.indexOf(loaderName.toUpperCase() + ":")) {
+							moduleFullName = moduleFullName.substr(loaderName.length + 1);
+							loader = _loaders[loaderName];
+							break;
+						}
 					}
 
 					if (!_definedModules[moduleFullName]) {
@@ -60,7 +66,7 @@
 							_callbacks[moduleFullName] = callback;
 						}
 
-						loadExecuter(moduleFullName);
+						loader(moduleFullName);
 					}
 				},
 				_loadModules = function (modulesFullNames, callback) {
@@ -203,5 +209,6 @@
 	".ajax",
 	".templateEngine",
 	".keyCodes",
-	".idsGenerator"
+	".idsGenerator",
+	".stylesManager"
 ]);
