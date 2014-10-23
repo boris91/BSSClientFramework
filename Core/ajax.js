@@ -29,29 +29,24 @@
 			return xhr;
 		},
 		_syncReadyStateChangeHandler = function (xhr, params) {
-			var xhrResponse = {
-					success: false,
-					value: xhr.response || xhr.responseText
+			var xhrSucceeded = (200 === xhr.status),
+				xhrResponse = {
+					success: xhrSucceeded,
+					value: xhrSucceeded ? BSS.window.JSON.parse(xhr.response || xhr.responseText) : (xhr.response || xhr.responseText)
 				},
-				syncCallback = function () {
-					return xhrResponse;
-				};
+				callback = function () { return xhrResponse; };
 
-			if (params) {
-				if (200 === xhr.status) {
-					if (params.onSuccess) {
-						syncCallback = params.onSuccess;
-					}
-					xhrResponse.success = true;
-					xhrResponse.value = BSS.window.JSON.parse(xhrResponse.value);
-				} else if (params.onError) {
-					syncCallback = params.onError;
+			if (false !== params.async) {
+				if (xhrSucceeded) {
+					callback = params.onSuccess || callback;
+				} else {
+					callback = params.onError || callback;
 				}
 			}
 
 			delete _xhrs[xhr.id];
 
-			return syncCallback(xhrResponse.value);
+			return callback(xhrResponse.value);
 		},
 		_getAsyncReadyStateChangeHandler = function (xhr, params) {
 			return function () {
