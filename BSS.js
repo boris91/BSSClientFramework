@@ -1,13 +1,14 @@
-﻿(function (__win, __coreNamespace, __coreModules) {
+﻿(function (__win, __bssGlobalName, __coreNamespace, __coreModules) {
 	var __doc, __head, __bss, __bssModules, __bssModules_preloadFake;
 
-	if ((__win || window).hasOwnProperty("BSS")) {
-		return;
-	}
-
 	__win = __win || window;
+	__bssGlobalName = __bssGlobalName || "BSS";
 	__coreNamespace = __coreNamespace || "";
 	__coreModules = __coreModules || [];
+
+	if (__win.hasOwnProperty(__bssGlobalName)) {
+		return;
+	}
 
 	__doc = __win.document;
 	__head = __doc.head;
@@ -42,7 +43,7 @@
 					iframeElem.setAttribute("src", _getModuleFilePath(templateFullName, "html"));
 					iframeElem.addEventListener("load", function () {
 						var templateString = iframeElem.contentWindow.document.body.innerHTML,
-							htmlTemplateEngine = BSS.templateEngine(templateString);
+							htmlTemplateEngine = __bss.templateEngine(templateString);
 						__head.removeChild(iframeElem);
 						_registerModule(templateFullName, htmlTemplateEngine);
 					}, false);
@@ -216,11 +217,11 @@
 		}
 	});
 
-	__win.Object.defineProperty(__win, "BSS", {
+	__win.Object.defineProperty(__win, __bssGlobalName, {
 		writable: false,
 		value: __bss
 	});
-})(window, "Core", [
+})(window, "BSS", "Core", [
 	".routes",
 	".ajax",
 	".templateEngine",
