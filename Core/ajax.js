@@ -30,9 +30,10 @@
 		},
 		_syncReadyStateChangeHandler = function (xhr, params) {
 			var xhrSucceeded = (200 === xhr.status),
+				parseResultAsJson = xhrSucceeded && (false !== params.handleAsJson),
 				xhrResponse = {
 					success: xhrSucceeded,
-					value: xhrSucceeded ? BSS.window.JSON.parse(xhr.response || xhr.responseText) : (xhr.response || xhr.responseText)
+					value: parseResultAsJson ? BSS.window.JSON.parse(xhr.response || xhr.responseText) : (xhr.response || xhr.responseText)
 				},
 				callback = function () { return xhrResponse; };
 
@@ -71,7 +72,8 @@
 				data: {...},
 				headers: {...},
 				onSuccess: function (response) {...},
-				onError: function (response) {...}
+				onError: function (response) {...},
+				handleAsJson: true/false
 			}
 		*/
 		send: function (params) {

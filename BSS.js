@@ -1,5 +1,5 @@
 ﻿(function (__win, __bssGlobalName, __coreNamespace, __coreModules) {
-	var __doc, __head, __bss, __bssModules, __bssModules_preloadFake;
+	var __doc, __head, __bss, __bssModules;
 
 	__win = __win || window;
 	__bssGlobalName = __bssGlobalName || "BSS";
@@ -33,6 +33,18 @@
 				var moduleFullNameWithNamespace = _getModuleNameWithNamespace(moduleFullName);
 				return moduleFullNameWithNamespace.replace(/\./g, "/") + "." + fileExt;
 			},
+			_jsLoaderXhrCallbacks = {
+				onSuccess: function (moduleContent) {
+					var execModuleDefinition = new __win.Function("BSS", moduleContent);
+					execModuleDefinition.call(__win, __bss);
+				},
+				onError: function (errorInfo) {
+					var errorInfoContainer = __doc.createElement("IFRAME");
+					errorInfoContainer.setAttribute("style", "position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 9999;");
+					__doc.body.appendChild(errorInfoContainer);
+					errorInfoContainer.contentDocument.write(errorInfo);
+				}
+			},
 			_loaders = {
 				css: function (stylesheetFullName) {
 					_registerModule(stylesheetFullName, "@import url(" + _getModuleFilePath(stylesheetFullName, "css") + ");");
@@ -50,14 +62,10 @@
 					__head.appendChild(iframeElem);
 				},
 				js: function (moduleFullName) {
-					var scriptElem = __doc.createElement("SCRIPT");
-					scriptElem.setAttribute("type", "text/javascript");
-					scriptElem.setAttribute("charset", "utf-8");
-					scriptElem.addEventListener("load", function () {
-						__head.removeChild(scriptElem);
-					}, false);
-					scriptElem.setAttribute("src", _getModuleFilePath(moduleFullName, "js"));
-					__head.appendChild(scriptElem);
+					var xhr = new __win.XMLHttpRequest();
+					xhr.open("GET", _getModuleFilePath(moduleFullName, "js"), false);
+					xhr.send(null);
+					_jsLoaderXhrCallbacks[(200 === xhr.status) ? "onSuccess" : "onError"](xhr.responseText);
 				}
 			},
 			_loadModule = function (moduleFullName, callback) {
@@ -154,49 +162,6 @@
 			}
 		};
 	})();
-	__bssModules_preloadFake = (function () {
-		var _argsForDeferred = [],
-			_fakeRequireAllowed = true;
-
-		return {
-			registerNamespace: function (name, path) {
-				__bssModules.registerNamespace.apply(__bssModules, arguments);
-			},
-			define: function (moduleFullName, deps, moduleGetter) {
-				__bssModules.define.apply(__bssModules, arguments);
-			},
-			require: function (requiredCode, callback) {
-				if (_fakeRequireAllowed) {
-					_argsForDeferred[_argsForDeferred.length] = [requiredCode, callback];
-				} else {
-					__bssModules.require.apply(__bssModules, arguments);
-				}
-			},
-			requireDeferred: function () {
-				var argsForDeferredCount = _argsForDeferred.length,
-					i;
-				_fakeRequireAllowed = false;
-				for (i = 0; i < argsForDeferredCount; i++) {
-					__bssModules.require.apply(__bssModules, _argsForDeferred[i]);
-				}
-			},
-			dispose: function () {
-				_argsForDeferred = null;
-				_fakeRequireAllowed = null;
-				__bssModules_preloadFake = null;
-			}
-		};
-	})();
-
-	__bssModules.registerNamespace("", __coreNamespace);
-	__bssModules.require(__coreModules, function () {
-		__bssModules_preloadFake.requireDeferred();
-		__win.Object.defineProperty(__bss, "modules", {
-			writable: false,
-			value: __bssModules
-		});
-		__bssModules_preloadFake.dispose();
-	});
 
 	__win.Object.defineProperties(__bss, {
 		"window": {
@@ -212,10 +177,15 @@
 			value: __head
 		},
 		"modules": {
-			writable: true,
-			value: __bssModules_preloadFake
+			writable: false,
+			value: __bssModules
 		}
 	});
+
+	// +++ require core modules +++
+	__bssModules.registerNamespace("", __coreNamespace);
+	__bssModules.require(__coreModules);
+	// --- require core modules ---
 
 	__win.Object.defineProperty(__win, __bssGlobalName, {
 		writable: false,
