@@ -33,16 +33,18 @@
 				var moduleFullNameWithNamespace = _getModuleNameWithNamespace(moduleFullName);
 				return moduleFullNameWithNamespace.replace(/\./g, "/") + "." + fileExt;
 			},
-			_jsLoaderXhrCallbacks = {
-				onSuccess: function (moduleContent) {
-					var execModuleDefinition = new __win.Function("BSS", moduleContent);
-					execModuleDefinition.call(__win, __bss);
-				},
-				onError: function (errorInfo) {
-					var errorInfoContainer = __doc.createElement("IFRAME");
+			_fetchModuleFileContent = function (moduleFullName, fileExt, onSuccess) {
+				var xhr = new __win.XMLHttpRequest(),
+					errorInfoContainer;
+				xhr.open("GET", _getModuleFilePath(moduleFullName, fileExt), false);
+				xhr.send(null);
+				if (200 === xhr.status) {
+					onSuccess(xhr.responseText);
+				} else {
+					errorInfoContainer = __doc.createElement("IFRAME");
 					errorInfoContainer.setAttribute("style", "position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 9999;");
 					__doc.body.appendChild(errorInfoContainer);
-					errorInfoContainer.contentDocument.write(errorInfo);
+					errorInfoContainer.contentDocument.write(xhr.responseText);
 				}
 			},
 			_loaders = {
@@ -50,22 +52,14 @@
 					_registerModule(stylesheetFullName, "@import url(" + _getModuleFilePath(stylesheetFullName, "css") + ");");
 				},
 				html: function (templateFullName) {
-					var iframeElem = __doc.createElement("IFRAME");
-					iframeElem.setAttribute("style", "position: absolute; left: 0px; top: 0px; width: 0px; height: 0px; visibility: hidden;");
-					iframeElem.setAttribute("src", _getModuleFilePath(templateFullName, "html"));
-					iframeElem.addEventListener("load", function () {
-						var templateString = iframeElem.contentWindow.document.body.innerHTML,
-							htmlTemplateEngine = __bss.templateEngine(templateString);
-						__head.removeChild(iframeElem);
-						_registerModule(templateFullName, htmlTemplateEngine);
-					}, false);
-					__head.appendChild(iframeElem);
+					_fetchModuleFileContent(templateFullName, "html", function (templateString) {
+						_registerModule(templateFullName, __bss.templateEngine(templateString));
+					});
 				},
 				js: function (moduleFullName) {
-					var xhr = new __win.XMLHttpRequest();
-					xhr.open("GET", _getModuleFilePath(moduleFullName, "js"), false);
-					xhr.send(null);
-					_jsLoaderXhrCallbacks[(200 === xhr.status) ? "onSuccess" : "onError"](xhr.responseText);
+					_fetchModuleFileContent(moduleFullName, "js", function (moduleContent) {
+						(new __win.Function(moduleContent)).call(__win);
+					});
 				}
 			},
 			_loadModule = function (moduleFullName, callback) {
@@ -90,24 +84,19 @@
 			},
 			_loadModules = function (modulesFullNames, callback) {
 				var modulesCount = modulesFullNames && modulesFullNames.length || 0,
-					loadedModulesCount = 0,
 					callbackArgs = [],
-					getEachModuleCallback = function (index) {
+					getEachModuleCallback = function () {
 						return callback && function (module) {
-							callbackArgs[index] = module;
-							++loadedModulesCount;
-							if (loadedModulesCount === modulesCount) {
-								callback.apply(__win, callbackArgs);
-							}
+							callbackArgs.push(module);
 						} || null;
 					},
 					i;
 
 				for (i = 0; i < modulesCount; i++) {
-					_loadModule(modulesFullNames[i], getEachModuleCallback(i));
+					_loadModule(modulesFullNames[i], getEachModuleCallback());
 				}
 
-				if (callback && 0 === modulesCount) {
+				if (callback) {
 					callback.apply(__win, callbackArgs);
 				}
 			},
@@ -182,15 +171,15 @@
 		}
 	});
 
-	// +++ require core modules +++
-	__bssModules.registerNamespace("", __coreNamespace);
-	__bssModules.require(__coreModules);
-	// --- require core modules ---
-
 	__win.Object.defineProperty(__win, __bssGlobalName, {
 		writable: false,
 		value: __bss
 	});
+
+	// +++ require core modules +++
+	__bssModules.registerNamespace("", __coreNamespace);
+	__bssModules.require(__coreModules);
+	// --- require core modules ---
 })(window, "BSS", "Core", [
 	".routes",
 	".ajax",
