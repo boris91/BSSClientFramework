@@ -1,10 +1,7 @@
 ﻿(function (__win, __bssGlobalName, __coreNamespace, __coreModules) {
-	var __doc, __head, __bss, __bssModules;
+	"use strict";
 
-	__win = __win || window;
-	__bssGlobalName = __bssGlobalName || "BSS";
-	__coreNamespace = __coreNamespace || "";
-	__coreModules = __coreModules || [];
+	var __doc, __head, __bss, __bssModules;
 
 	if (__win.hasOwnProperty(__bssGlobalName)) {
 		return;

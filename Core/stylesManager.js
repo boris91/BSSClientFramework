@@ -1,4 +1,6 @@
 BSS.modules.define(".stylesManager", null, function () {
+	"use strict";
+
 	var _styleElem = BSS.head.appendChild(BSS.document.createElement("STYLE"));
 
 	return {

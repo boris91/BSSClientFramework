@@ -1,4 +1,6 @@
 BSS.modules.define(".templateEngine", null, function () {
+	"use strict";
+
 	var _getTemplateEngine = function (processedTemplateString) {
 		return new BSS.window.Function("objectToShow", "targetContainerId",
 			"var resultHtml = [],\n" +

@@ -1,4 +1,5 @@
 ﻿BSS.modules.define(".ajax", null, function () {
+	"use strict";
 
 	var _xhrs = {},
 		_createXmlHttpRequest = function (params) {

@@ -1,4 +1,6 @@
 ﻿BSS.modules.define(".routes", null, function () {
+	"use strict";
+
 	var _bssRoutes = {},
 		routesSet = {
 			/*
