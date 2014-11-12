@@ -183,5 +183,6 @@
 	".templateEngine",
 	".keyCodes",
 	".idsGenerator",
-	".stylesManager"
+	".stylesManager",
+	".mediator"
 ]);
