@@ -1,4 +1,4 @@
-﻿BSS.modules.define(".keyCodes", null, function () {
+﻿BSS.modules.define(".keyCodes", null, function BSS$modules$define_moduleGetter_keyCodes () {
 	"use strict";
 
 	var _bssKeys = {},
