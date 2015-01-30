@@ -1,8 +1,8 @@
-﻿BSS.modules.define(".ajax", null, function () {
+﻿BSS.modules.define(".ajax", null, function BSS$modules$define_moduleGetter () {
 	"use strict";
 
 	var _xhrs = {},
-		_createXmlHttpRequest = function (params) {
+		_createXmlHttpRequest = function BSS$ajax$_createXmlHttpRequest (params) {
 			var xhr = new BSS.window.XMLHttpRequest(),
 				xhrHeaders = params.headers || {},
 				xhrQueryOptions = params.queryOptions || {},
@@ -29,14 +29,14 @@
 
 			return xhr;
 		},
-		_syncReadyStateChangeHandler = function (xhr, params) {
+		_syncReadyStateChangeHandler = function BSS$ajax$_syncReadyStateChangeHandler (xhr, params) {
 			var xhrSucceeded = (200 === xhr.status),
 				parseResultAsJson = xhrSucceeded && (false !== params.handleAsJson),
 				xhrResponse = {
 					success: xhrSucceeded,
 					value: parseResultAsJson ? BSS.window.JSON.parse(xhr.response || xhr.responseText) : (xhr.response || xhr.responseText)
 				},
-				callback = function () { return xhrResponse; };
+				callback = function BSS$ajax$_syncReadyStateChangeHandler_callback () { return xhrResponse; };
 
 			if (false !== params.async) {
 				if (xhrSucceeded) {
@@ -50,8 +50,8 @@
 
 			return callback(xhrResponse.value);
 		},
-		_getAsyncReadyStateChangeHandler = function (xhr, params) {
-			return function () {
+		_getAsyncReadyStateChangeHandler = function BSS$ajax$_getAsyncReadyStateChangeHandler (xhr, params) {
+			return function BSS$ajax$_getAsyncReadyStateChangeHandler_asyncReadyStateChangeHandler () {
 				if (4 === xhr.readyState) {
 					return _syncReadyStateChangeHandler(xhr, params);
 				}
@@ -77,14 +77,14 @@
 				handleAsJson: true/false
 			}
 		*/
-		send: function (params) {
+		send: function BSS$ajax$send (params) {
 			var xhr = _createXmlHttpRequest(params);
 			xhr.send(params.data || null);
 			if (false === params.async) {
 				return _syncReadyStateChangeHandler(xhr, params);
 			}
 		},
-		abort: function (xhrId) {
+		abort: function BSS$ajax$abort (xhrId) {
 			var xhr = _xhrs[xhrId];
 			if (xhr) {
 				xhr.abort();
@@ -92,7 +92,7 @@
 			}
 			return false;
 		},
-		abortAll: function () {
+		abortAll: function BSS$ajax$abortAll () {
 			var xhrId;
 			for (xhrId in _xhrs) {
 				_xhrs[xhrId].abort();
