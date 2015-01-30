@@ -1,4 +1,4 @@
-﻿BSS.modules.define(".ajax", null, function BSS$modules$define_moduleGetter () {
+﻿BSS.modules.define(".ajax", null, function BSS$modules$define_moduleGetter_ajax () {
 	"use strict";
 
 	var _xhrs = {},
