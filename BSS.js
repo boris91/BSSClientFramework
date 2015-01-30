@@ -1,4 +1,4 @@
-﻿(function (__win, __bssGlobalName, __coreNamespace, __coreModules, __mainScriptId) {
+﻿(function IIFE$BSS (__win, __bssGlobalName, __coreNamespace, __coreModules, __mainScriptId) {
 	"use strict";
 
 	var __doc, __head, __bss, __bssModules, __jsCommonPath;
@@ -10,13 +10,13 @@
 
 	__doc = __win.document;
 	__head = __doc.head;
-	__jsCommonPath = (__mainScriptId && __doc.getElementById(__mainScriptId) || { getAttribute: function () { return ""; } }).getAttribute("src").replace(__bssGlobalName + ".js", "") || "";
+	__jsCommonPath = (__mainScriptId && __doc.getElementById(__mainScriptId) || { getAttribute: function mainScriptFakeObj$getAttribute () { return ""; } }).getAttribute("src").replace(__bssGlobalName + ".js", "") || "";
 	__bss = {};
-	__bssModules = (function () {
+	__bssModules = (function IIFE$BSS$modules () {
 		var _definedModules = {},
 			_registeredNamespaces = {},
 			_callbacks = {},
-			_getModuleNameWithNamespace = function (moduleFullName) {
+			_getModuleNameWithNamespace = function BSS$modules$_getModuleNameWithNamespace (moduleFullName) {
 				var modulePathChain = moduleFullName.split("."),
 					nsName;
 				for (nsName in _registeredNamespaces) {
@@ -28,11 +28,11 @@
 				}
 				return moduleFullName;
 			},
-			_getModuleFilePath = function (moduleFullName, fileExt) {
+			_getModuleFilePath = function BSS$modules$_getModuleFilePath (moduleFullName, fileExt) {
 				var moduleFullNameWithNamespace = _getModuleNameWithNamespace(moduleFullName);
 				return __jsCommonPath + moduleFullNameWithNamespace.replace(/\./g, "/") + "." + fileExt;
 			},
-			_fetchModuleFileContent = function (moduleFullName, fileExt, onSuccess) {
+			_fetchModuleFileContent = function BSS$modules$_fetchModuleFileContent (moduleFullName, fileExt, onSuccess) {
 				var xhr = new __win.XMLHttpRequest(),
 					errorInfoContainer;
 				xhr.open("GET", _getModuleFilePath(moduleFullName, fileExt), false);
@@ -47,21 +47,21 @@
 				}
 			},
 			_loaders = {
-				css: function (stylesheetFullName) {
+				css: function BSS$modules$_loaders$css (stylesheetFullName) {
 					_registerModule(stylesheetFullName, "@import url(" + _getModuleFilePath(stylesheetFullName, "css") + ");");
 				},
-				html: function (templateFullName) {
+				html: function BSS$modules$_loaders$html (templateFullName) {
 					_fetchModuleFileContent(templateFullName, "html", function (templateString) {
 						_registerModule(templateFullName, __bss.templateEngine(templateString));
 					});
 				},
-				js: function (moduleFullName) {
+				js: function BSS$modules$_loaders$js (moduleFullName) {
 					_fetchModuleFileContent(moduleFullName, "js", function (moduleContent) {
 						(new __win.Function(moduleContent)).call(__win);
 					});
 				}
 			},
-			_loadModule = function (moduleFullName, callback) {
+			_loadModule = function BSS$modules$_loadModule (moduleFullName, callback) {
 				var loader = _loaders.js,
 					loaderName;
 
@@ -81,7 +81,7 @@
 					loader(moduleFullName);
 				}
 			},
-			_loadModules = function (modulesFullNames, callback) {
+			_loadModules = function BSS$modules$_loadModules (modulesFullNames, callback) {
 				var modulesCount = modulesFullNames && modulesFullNames.length || 0,
 					callbackArgs = [],
 					getEachModuleCallback = function () {
@@ -99,7 +99,7 @@
 					callback.apply(__win, callbackArgs);
 				}
 			},
-			_registerModule = function (moduleFullName, module) {
+			_registerModule = function BSS$modules$_registerModule (moduleFullName, module) {
 				var modulePathChain = moduleFullName.split("."),
 					ancestorsCount = modulePathChain.length - 1,
 					moduleName = modulePathChain[ancestorsCount],
@@ -132,19 +132,19 @@
 			};
 
 		return {
-			registerNamespace: function (name, path) {
+			registerNamespace: function BSS$modules$registerNamespace (name, path) {
 				_registeredNamespaces[name] = path;
 			},
-			define: function (moduleFullName, deps, moduleGetter) {
+			define: function BSS$modules$define (moduleFullName, deps, moduleGetter) {
 				if (!_definedModules[moduleFullName]) {
 					_definedModules[moduleFullName] = true;
-					_loadModules(deps, function () {
+					_loadModules(deps, function BSS$modules$_loadModules_callback () {
 						var moduleCtor = moduleGetter.apply(__win, arguments);
 						_registerModule(moduleFullName, moduleCtor);
 					});
 				}
 			},
-			require: function (requiredCode, callback) {
+			require: function BSS$modules$require (requiredCode, callback) {
 				var requireExecuter = ("string" === typeof requiredCode) ? _loadModule : _loadModules;
 				requireExecuter(requiredCode, callback);
 			}
