@@ -51,12 +51,12 @@
 					_registerModule(stylesheetFullName, "@import url(" + _getModuleFilePath(stylesheetFullName, "css") + ");");
 				},
 				html: function BSS$modules$_loaders$html (templateFullName) {
-					_fetchModuleFileContent(templateFullName, "html", function (templateString) {
+					_fetchModuleFileContent(templateFullName, "html", function BSS$modules$_fetchModuleFileContent_onSuccess (templateString) {
 						_registerModule(templateFullName, __bss.templateEngine(templateString));
 					});
 				},
 				js: function BSS$modules$_loaders$js (moduleFullName) {
-					_fetchModuleFileContent(moduleFullName, "js", function (moduleContent) {
+					_fetchModuleFileContent(moduleFullName, "js", function BSS$modules$_fetchModuleFileContent_onSuccess (moduleContent) {
 						(new __win.Function(moduleContent)).call(__win);
 					});
 				}
@@ -84,8 +84,8 @@
 			_loadModules = function BSS$modules$_loadModules (modulesFullNames, callback) {
 				var modulesCount = modulesFullNames && modulesFullNames.length || 0,
 					callbackArgs = [],
-					getEachModuleCallback = function () {
-						return callback && function (module) {
+					getEachModuleCallback = function BSS$modules$_loadModules_getEachModuleCallback () {
+						return callback && function BSS$modules$_loadModules_eachModuleCallback (module) {
 							callbackArgs.push(module);
 						} || null;
 					},
