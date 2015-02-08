@@ -1,14 +1,20 @@
 ﻿(function (__win, __bssGlobalName, __coreNamespace, __coreModules) {
 	"use strict";
 
-	var __doc, __head, __bss, __bssModules;
+	var __doc, __head, __bss, __bssModules, __jsScript;
 
+	
+	
 	if (__win.hasOwnProperty(__bssGlobalName)) {
 		return;
 	}
 
 	__doc = __win.document;
 	__head = __doc.head;
+	__jsScript = __doc.getElementById('mainScript');
+	if (__jsScript) {
+		var __jsScriptsSrc = __jsScript.getAttribute('src').replace(__bssGlobalName + '.js', '');
+	}
 	__bss = {};
 	__bssModules = (function () {
 		var _definedModules = {},
@@ -28,7 +34,7 @@
 			},
 			_getModuleFilePath = function (moduleFullName, fileExt) {
 				var moduleFullNameWithNamespace = _getModuleNameWithNamespace(moduleFullName);
-				return moduleFullNameWithNamespace.replace(/\./g, "/") + "." + fileExt;
+				return __jsScriptsSrc + moduleFullNameWithNamespace.replace(/\./g, "/") + "." + fileExt;
 			},
 			_fetchModuleFileContent = function (moduleFullName, fileExt, onSuccess) {
 				var xhr = new __win.XMLHttpRequest(),
