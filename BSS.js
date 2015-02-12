@@ -1,17 +1,18 @@
-﻿(function IIFE$BSS (__win, __bssGlobalName, __coreNamespace, __coreModules, __mainScriptId) {
+﻿/*uses config.json content and window object as incoming arguments*/
+(function IIFE$BSS (__configParams /* globalApplicationName, jsFilesDirectoryPath, defaultModules */, __win) {
 	"use strict";
 
-	var __doc, __head, __bss, __bssModules, __jsCommonPath;
+	var __doc, __head, __obj, __bss, __bssModules, __jsFilesDirectoryPath;
 
-	
-	if (__win.hasOwnProperty(__bssGlobalName)) {
+	if (__win.hasOwnProperty(__configParams.globalApplicationName)) {
 		return;
 	}
 
 	__doc = __win.document;
 	__head = __doc.head;
-	__jsCommonPath = (__mainScriptId && __doc.getElementById(__mainScriptId) || { getAttribute: function mainScriptFakeObj$getAttribute () { return ""; } }).getAttribute("src").replace(__bssGlobalName + ".js", "") || "";
+	__obj = __win.Object;
 	__bss = {};
+	__jsFilesDirectoryPath = __configParams.jsFilesDirectoryPath;
 	__bssModules = (function IIFE$BSS$modules () {
 		var _definedModules = {},
 			_registeredNamespaces = {},
@@ -30,20 +31,16 @@
 			},
 			_getModuleFilePath = function BSS$modules$_getModuleFilePath (moduleFullName, fileExt) {
 				var moduleFullNameWithNamespace = _getModuleNameWithNamespace(moduleFullName);
-				return __jsCommonPath + moduleFullNameWithNamespace.replace(/\./g, "/") + "." + fileExt;
+				return __jsFilesDirectoryPath + moduleFullNameWithNamespace.replace(/\./g, "/") + "." + fileExt;
 			},
 			_fetchModuleFileContent = function BSS$modules$_fetchModuleFileContent (moduleFullName, fileExt, onSuccess) {
-				var xhr = new __win.XMLHttpRequest(),
-					errorInfoContainer;
+				var xhr = new __win.XMLHttpRequest();
 				xhr.open("GET", _getModuleFilePath(moduleFullName, fileExt), false);
 				xhr.send(null);
 				if (200 === xhr.status) {
 					onSuccess(xhr.responseText);
 				} else {
-					errorInfoContainer = __doc.createElement("IFRAME");
-					errorInfoContainer.setAttribute("style", "position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 9999;");
-					__doc.body.appendChild(errorInfoContainer);
-					errorInfoContainer.contentDocument.write(xhr.responseText);
+					__doc.write(xhr.responseText);
 				}
 			},
 			_loaders = {
@@ -111,7 +108,7 @@
 					ancestorName = modulePathChain[i];
 					if (ancestorName) {
 						if (!parentObj[ancestorName]) {
-							__win.Object.defineProperty(parentObj, ancestorName, {
+							__obj.defineProperty(parentObj, ancestorName, {
 								writable: false,
 								value: {}
 							});
@@ -120,7 +117,7 @@
 					}
 				}
 
-				__win.Object.defineProperty(parentObj, moduleName, {
+				__obj.defineProperty(parentObj, moduleName, {
 					writable: false,
 					value: module
 				});
@@ -151,7 +148,7 @@
 		};
 	})();
 
-	__win.Object.defineProperties(__bss, {
+	__obj.defineProperties(__bss, {
 		"window": {
 			writable: false,
 			value: __win
@@ -170,21 +167,22 @@
 		}
 	});
 
-	__win.Object.defineProperty(__win, __bssGlobalName, {
+	__obj.defineProperty(__win, __configParams.globalApplicationName, {
 		writable: false,
 		value: __bss
 	});
 
-	// +++ require core modules +++
-	__bssModules.registerNamespace("", __coreNamespace);
-	__bssModules.require(__coreModules);
-	// --- require core modules ---
-})(window, "BSS", "Core", [
-	".routes",
-	".ajax",
-	".templateEngine",
-	".keyCodes",
-	".idsGenerator",
-	".stylesManager",
-	".mediator"
-], "mainScript");
+	// +++ require default modules +++
+	(function IIFE$_requireDefaultModules () {
+		var defaultModules = __configParams.defaultModules,
+			namespace, splittedNs;
+
+		for (namespace in defaultModules) {
+			splittedNs = namespace.split(":");
+			__bssModules.registerNamespace(splittedNs[0], splittedNs[1]);
+			__bssModules.require(defaultModules[namespace]);
+		}
+	})();
+	// --- require default modules ---
+
+})(configParams, window);

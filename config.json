@@ -1,0 +1,15 @@
+﻿{
+	"globalApplicationName": "BSS",
+	"jsFilesDirectoryPath": "",
+	"defaultModules": {
+		":Core": [
+			".routes",
+			".ajax",
+			".templateEngine",
+			".keyCodes",
+			".idsGenerator",
+			".stylesManager",
+			".mediator"
+		]
+	}
+}
