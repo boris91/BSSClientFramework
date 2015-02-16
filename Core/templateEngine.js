@@ -23,17 +23,18 @@ BSS.modules.define("core.templateEngine", null, function BSS$core$modules$define
 			"}\n\n" +
 
 			"return resultHtml;");
-		};
+	};
 
 	return function BSS$core$templateEngine (templateString) {
-		var processedTemplateString = templateString.replace(/[\r\t\n]/g, " ");
-		processedTemplateString = processedTemplateString.split("&lt;%").join("<%");
-		processedTemplateString = processedTemplateString.split("%&gt;").join("%>");
-		processedTemplateString = processedTemplateString.split("<%").join("\t");
-		processedTemplateString = processedTemplateString.replace(/((^|%>)[^\t]*)'/g, "$1\r").replace(/\t=(.*?)%>/g, "',$1,'");
-		processedTemplateString = processedTemplateString.split("\t").join("');");
-		processedTemplateString = processedTemplateString.split("%>").join("resultHtml.push('");
-		processedTemplateString = processedTemplateString.split("\r").join("\\'");
+		var processedTemplateString = templateString.replace(/[\r\t\n]/g, " ")
+			.split("&lt;%").join("<%")
+			.split("%&gt;").join("%>")
+			.split("<%").join("\t")
+			.replace(/((^|%>)[^\t]*)'/g, "$1\r").replace(/\t=(.*?)%>/g, "',$1,'")
+			.split("\t").join("');")
+			.split("%>").join("resultHtml.push('")
+			.split("\r").join("\\'");
+
 		return _getTemplateEngine(processedTemplateString);
 	};
 });
