@@ -1,4 +1,4 @@
-﻿BSS.modules.define(".routes", null, function BSS$modules$define_moduleGetter_routes () {
+﻿BSS.modules.define("core.routes", null, function BSS$core$modules$define_moduleGetter_routes () {
 	"use strict";
 
 	var _bssRoutes = {},

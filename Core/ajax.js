@@ -1,8 +1,8 @@
-﻿BSS.modules.define(".ajax", null, function BSS$modules$define_moduleGetter_ajax () {
+﻿BSS.modules.define("core.ajax", null, function BSS$modules$define_moduleGetter_ajax () {
 	"use strict";
 
 	var _xhrs = {},
-		_createXmlHttpRequest = function BSS$ajax$_createXmlHttpRequest (params) {
+		_createXmlHttpRequest = function BSS$core$ajax$_createXmlHttpRequest (params) {
 			var xhr = new BSS.window.XMLHttpRequest(),
 				xhrHeaders = params.headers || {},
 				xhrQueryOptions = params.queryOptions || {},
@@ -14,7 +14,7 @@
 				xhrQuery += queryOption + "=" + xhrQueryOptions[queryOption] + "&";
 			}
 
-			xhr.id = BSS.idsGenerator.getId();
+			xhr.id = BSS.core.idsGenerator.getId();
 			_xhrs[xhr.id] = xhr;
 
 			xhr.open(params.method, params.url + xhrQuery, xhrIsAsync);
@@ -29,14 +29,14 @@
 
 			return xhr;
 		},
-		_syncReadyStateChangeHandler = function BSS$ajax$_syncReadyStateChangeHandler (xhr, params) {
+		_syncReadyStateChangeHandler = function BSS$core$ajax$_syncReadyStateChangeHandler (xhr, params) {
 			var xhrSucceeded = (200 === xhr.status),
 				parseResultAsJson = xhrSucceeded && (false !== params.handleAsJson),
 				xhrResponse = {
 					success: xhrSucceeded,
 					value: parseResultAsJson ? BSS.window.JSON.parse(xhr.response || xhr.responseText) : (xhr.response || xhr.responseText)
 				},
-				callback = function BSS$ajax$_syncReadyStateChangeHandler_callback () { return xhrResponse; };
+				callback = function BSS$core$ajax$_syncReadyStateChangeHandler_callback () { return xhrResponse; };
 
 			if (false !== params.async) {
 				if (xhrSucceeded) {
@@ -50,8 +50,8 @@
 
 			return callback(xhrResponse.value);
 		},
-		_getAsyncReadyStateChangeHandler = function BSS$ajax$_getAsyncReadyStateChangeHandler (xhr, params) {
-			return function BSS$ajax$_getAsyncReadyStateChangeHandler_asyncReadyStateChangeHandler () {
+		_getAsyncReadyStateChangeHandler = function BSS$core$ajax$_getAsyncReadyStateChangeHandler (xhr, params) {
+			return function BSS$core$ajax$_getAsyncReadyStateChangeHandler_asyncReadyStateChangeHandler () {
 				if (4 === xhr.readyState) {
 					return _syncReadyStateChangeHandler(xhr, params);
 				}
@@ -77,14 +77,14 @@
 				handleAsJson: true/false
 			}
 		*/
-		send: function BSS$ajax$send (params) {
+		send: function BSS$core$ajax$send (params) {
 			var xhr = _createXmlHttpRequest(params);
 			xhr.send(params.data || null);
 			if (false === params.async) {
 				return _syncReadyStateChangeHandler(xhr, params);
 			}
 		},
-		abort: function BSS$ajax$abort (xhrId) {
+		abort: function BSS$core$ajax$abort (xhrId) {
 			var xhr = _xhrs[xhrId];
 			if (xhr) {
 				xhr.abort();
@@ -92,7 +92,7 @@
 			}
 			return false;
 		},
-		abortAll: function BSS$ajax$abortAll () {
+		abortAll: function BSS$core$ajax$abortAll () {
 			var xhrId;
 			for (xhrId in _xhrs) {
 				_xhrs[xhrId].abort();

@@ -49,7 +49,7 @@
 				},
 				html: function BSS$modules$_loaders$html (templateFullName) {
 					_fetchModuleFileContent(templateFullName, "html", function BSS$modules$_fetchModuleFileContent_onSuccess (templateString) {
-						_registerModule(templateFullName, __bss.templateEngine(templateString));
+						_registerModule(templateFullName, __bss.core.templateEngine(templateString));
 					});
 				},
 				js: function BSS$modules$_loaders$js (moduleFullName) {
@@ -175,12 +175,14 @@
 	// +++ require default modules +++
 	(function IIFE$_requireDefaultModules () {
 		var defaultModules = __configParams.defaultModules,
-			namespace, splittedNs;
+			namespace, nsModules, nsModulesCount, i;
 
 		for (namespace in defaultModules) {
-			splittedNs = namespace.split(":");
-			__bssModules.registerNamespace(splittedNs[0], splittedNs[1]);
-			__bssModules.require(defaultModules[namespace]);
+			nsModules = defaultModules[namespace];
+			nsModulesCount = nsModules.length;
+			for (i = 0; i < nsModulesCount; i++) {
+				__bssModules.require(namespace + "." + nsModules[i]);
+			}
 		}
 	})();
 	// --- require default modules ---

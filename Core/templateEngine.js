@@ -1,10 +1,10 @@
-BSS.modules.define(".templateEngine", null, function BSS$modules$define_moduleGetter_templateEngine () {
+BSS.modules.define("core.templateEngine", null, function BSS$core$modules$define_moduleGetter_templateEngine () {
 	"use strict";
 
-	var _getTemplateEngine = function BSS$templateEngine$_getTemplateEngine (processedTemplateString) {
+	var _getTemplateEngine = function BSS$core$templateEngine$_getTemplateEngine (processedTemplateString) {
 		return new BSS.window.Function("objectToShow", "targetContainerId",
 			"var resultHtml = [],\n" +
-			"	print = function BSS$templateEngine$_getTemplateEngine_print () {\n" +
+			"	print = function BSS$core$templateEngine$_getTemplateEngine_print () {\n" +
 			"		resultHtml.push.apply(resultHtml,arguments);\n" +
 			"	},\n" +
 			"	targetContainer;\n\n" +
@@ -25,7 +25,7 @@ BSS.modules.define(".templateEngine", null, function BSS$modules$define_moduleGe
 			"return resultHtml;");
 		};
 
-	return function BSS$templateEngine (templateString) {
+	return function BSS$core$templateEngine (templateString) {
 		var processedTemplateString = templateString.replace(/[\r\t\n]/g, " ");
 		processedTemplateString = processedTemplateString.split("&lt;%").join("<%");
 		processedTemplateString = processedTemplateString.split("%&gt;").join("%>");
