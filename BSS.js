@@ -15,23 +15,18 @@
 	__jsFilesDirectoryPath = __configParams.jsFilesDirectoryPath;
 	__bssModules = (function IIFE$BSS$modules () {
 		var _definedModules = {},
-			_registeredNamespaces = {},
-			_callbacks = {},
-			_getModuleNameWithNamespace = function BSS$modules$_getModuleNameWithNamespace (moduleFullName) {
-				var modulePathChain = moduleFullName.split("."),
-					nsName;
-				for (nsName in _registeredNamespaces) {
-					if (nsName === modulePathChain[0]) {
-						modulePathChain[0] = _registeredNamespaces[nsName];
-						moduleFullName = modulePathChain.join(".");
-						break;
-					}
-				}
-				return moduleFullName;
-			},
 			_getModuleFilePath = function BSS$modules$_getModuleFilePath (moduleFullName, fileExt) {
-				var moduleFullNameWithNamespace = _getModuleNameWithNamespace(moduleFullName);
-				return __jsFilesDirectoryPath + moduleFullNameWithNamespace.replace(/\./g, "/") + "." + fileExt;
+				return __jsFilesDirectoryPath + moduleFullName.replace(/\./g, "/") + "." + fileExt;
+			},
+			_getModuleByFullName = function BSS$modules$_getModuleByFullName (fullName) {
+				var modulePathChain, modulePathChainLength, objToReturn, i;
+					objToReturn = __bss;
+					modulePathChain = fullName.split(".");
+					modulePathChainLength = modulePathChain.length;
+					for (i = 0; i < modulePathChainLength; i++) {
+						objToReturn = objToReturn[modulePathChain[i]];
+					}
+					return objToReturn;
 			},
 			_fetchModuleFileContent = function BSS$modules$_fetchModuleFileContent (moduleFullName, fileExt, onSuccess) {
 				var xhr = new __win.XMLHttpRequest();
@@ -58,7 +53,7 @@
 					});
 				}
 			},
-			_loadModule = function BSS$modules$_loadModule (moduleFullName, callback) {
+			_loadModule = function BSS$modules$_loadModule (moduleFullName) {
 				var loader = _loaders.js,
 					loaderName;
 
@@ -71,37 +66,29 @@
 				}
 
 				if (!_definedModules[moduleFullName]) {
-					if (callback) {
-						_callbacks[moduleFullName] = callback;
-					}
-
 					loader(moduleFullName);
 				}
+
+				return _getModuleByFullName(moduleFullName);
 			},
-			_loadModules = function BSS$modules$_loadModules (modulesFullNames, callback) {
+			_loadModules = function BSS$modules$_loadModules (modulesFullNames) {
 				var modulesCount = modulesFullNames && modulesFullNames.length || 0,
-					callbackArgs = [],
-					getEachModuleCallback = function BSS$modules$_loadModules_getEachModuleCallback () {
-						return callback && function BSS$modules$_loadModules_eachModuleCallback (module) {
-							callbackArgs.push(module);
-						} || null;
-					},
-					i;
+					loadedModules = [],
+					moduleFullName, module, i;
 
 				for (i = 0; i < modulesCount; i++) {
-					_loadModule(modulesFullNames[i], getEachModuleCallback());
+					moduleFullName = modulesFullNames[i];
+					module = _loadModule(moduleFullName);
+					loadedModules.push(module);
 				}
 
-				if (callback) {
-					callback.apply(__win, callbackArgs);
-				}
+				return loadedModules;
 			},
 			_registerModule = function BSS$modules$_registerModule (moduleFullName, module) {
 				var modulePathChain = moduleFullName.split("."),
 					ancestorsCount = modulePathChain.length - 1,
 					moduleName = modulePathChain[ancestorsCount],
 					parentObj = __bss,
-					callback = _callbacks[moduleFullName],
 					i, ancestorName;
 
 				for (i = 0; i < ancestorsCount; i++) {
@@ -121,29 +108,30 @@
 					writable: false,
 					value: module
 				});
-
-				if (callback) {
-					delete _callbacks[moduleFullName];
-					callback(module);
-				}
 			};
 
 		return {
-			registerNamespace: function BSS$modules$registerNamespace (name, path) {
-				_registeredNamespaces[name] = path;
-			},
-			define: function BSS$modules$define (moduleFullName, deps, moduleGetter) {
+			define: function BSS$modules$define (moduleFullName, depsNames, moduleGetter) {
+				var deps, moduleCtor;
 				if (!_definedModules[moduleFullName]) {
 					_definedModules[moduleFullName] = true;
-					_loadModules(deps, function BSS$modules$_loadModules_callback () {
-						var moduleCtor = moduleGetter.apply(__win, arguments);
-						_registerModule(moduleFullName, moduleCtor);
-					});
+					deps = _loadModules(depsNames);
+					moduleCtor = moduleGetter.apply(__win, deps);
+					_registerModule(moduleFullName, moduleCtor);
 				}
 			},
 			require: function BSS$modules$require (requiredCode, callback) {
-				var requireExecuter = ("string" === typeof requiredCode) ? _loadModule : _loadModules;
-				requireExecuter(requiredCode, callback);
+				var callbackArgs;
+
+				if ("string" === typeof requiredCode) {
+					callbackArgs = [_loadModule(requiredCode)];
+				} else {
+					callbackArgs = _loadModules(requiredCode);
+				}
+
+				if ("function" === typeof callback) {
+					callback.apply(__win, callbackArgs);
+				}
 			}
 		};
 	})();

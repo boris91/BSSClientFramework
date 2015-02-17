@@ -1,4 +1,8 @@
-﻿BSS.modules.define("core.ajax", null, function BSS$modules$define_moduleGetter_ajax () {
+﻿BSS.modules.define("core.ajax",
+	[
+		"core.idsGenerator"
+	],
+	function BSS$modules$define_moduleGetter_ajax (BSS$core$idsGenerator) {
 	"use strict";
 
 	var _xhrs = {},
@@ -14,7 +18,7 @@
 				xhrQuery += queryOption + "=" + xhrQueryOptions[queryOption] + "&";
 			}
 
-			xhr.id = BSS.core.idsGenerator.getId();
+			xhr.id = BSS$core$idsGenerator.getId();
 			_xhrs[xhr.id] = xhr;
 
 			xhr.open(params.method, params.url + xhrQuery, xhrIsAsync);
