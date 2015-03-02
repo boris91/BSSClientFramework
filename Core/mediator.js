@@ -23,7 +23,7 @@ BSS.modules.define("core.mediator", null, function BSS$core$modules$define_modul
 				}
 			}
 		},
-		publish: function BSS$core$mediator$publish (name) {
+		publish: function BSS$core$mediator$publish (name/*, arg1, arg2, ..., argN*/) {
 			var channel = _channels[name],
 				subscribersCount = channel && channel.length,
 				args = _arraySlice.call(arguments, 1),
