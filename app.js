@@ -8,7 +8,7 @@
 			2. Passes all client configuration preferences to main JS-file and executes its content as IIFE.
 	*/
 
-	var _app = (function IIFE$app () {
+	__win["app"] = (function IIFE$app () {
 		var _initialized = false,
 			_configParams = null,
 			_sendSyncXhr = function app$_sendSyncXhr (url, onSuccess, onError) {
@@ -70,10 +70,5 @@
 			}
 		};
 	})();
-
-	Object.defineProperty(__win, "app", {
-		writable: false,
-		value: _app
-	});
 
 })("config.json", window);
