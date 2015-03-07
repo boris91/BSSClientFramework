@@ -1,7 +1,7 @@
-BSS.modules.define("core.stylesManager", null, function BSS$core$modules$define_moduleGetter_stylesManager () {
+﻿modules.define("core.stylesManager", null, function BSS$core$modules$define_moduleGetter_stylesManager () {
 	"use strict";
 
-	var _styleElem = BSS.head.appendChild(BSS.document.createElement("STYLE"));
+	var _styleElem = docHead.appendChild(doc.createElement("STYLE"));
 
 	return {
 		include: function BSS$core$stylesManager$include (cssImportString) {

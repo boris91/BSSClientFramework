@@ -1,22 +1,56 @@
-﻿/*uses config.json content and window object as incoming arguments*/
-(function IIFE$BSS (__configParams /* globalApplicationName, jsFilesDirectoryPath, defaultModules */, __win) {
+﻿/*uses config.json content and success handler function as incoming arguments*/
+(function IIFE$BSS (__configParams /* globalApplicationName, jsFilesDirectoryPath, defaultModules */, __onSuccessHandler) {
 	"use strict";
 
-	var __doc, __head, __obj, __bssName, __jsFilesDirectoryPath, __bss;
+	var __win = this,
+		__doc = __win.document,
+		__docIsNotReady = ("complete" !== __doc.readyState),
+		__obj, __func, __xhr, __bssName, __jsFilesDirectoryPath, __bss;
 
-	if (__win.hasOwnProperty(__configParams.globalApplicationName)) {
+	if (__win.hasOwnProperty(__configParams["globalApplicationName"])) {
+		return;
+	} else if (__configParams["startOnDocReady"] && __docIsNotReady) {
+		__win.addEventListener("load", function BSS$__win$onload$listener () {
+			IIFE$BSS.call(__win, __configParams, __onSuccessHandler);
+			__win.removeEventListener("load", BSS$__win$onload$listener);
+		}, false);
 		return;
 	}
 
-	__doc = __win.document;
-	__head = __doc.head;
-	__obj = __win.Object;
-	__bssName = __configParams.globalApplicationName;
-	__jsFilesDirectoryPath = __configParams.jsFilesDirectoryPath;
+	__bssName = __configParams["globalApplicationName"];
+	__jsFilesDirectoryPath = __configParams["jsFilesDirectoryPath"];
 	__bss = __win[__bssName] = {
-		"window": __win,
-		"document": __doc,
-		"head": __head,
+
+		"win": __win,
+		"doc": __win.document,
+		"docHead": __doc.head,
+		"docBody": __doc.body,
+
+		"Obj": (__obj = __win.Object),
+		"ObjProto": __obj.prototype,
+		"Arr": __win.Array,
+		"ArrProto": __win.Array.prototype,
+		"Func": (__func = __win.Function),
+		"FuncProto": __func.prototype,
+		"Str": __win.String,
+		"StrProto": __win.String.prototype,
+		"Num": __win.Number,
+		"NumProto": __win.Number.prototype,
+		"Bool": __win.Boolean,
+		"BoolProto": __win.Boolean.prototype,
+		"Time": __win.Date,
+		"TimeProto": __win.Date.prototype,
+
+		"Arrbuf": __win.ArrayBuffer,
+		"Dataview": __win.DataView,
+		"Json": __win.JSON,
+		"Domparser": __win.DomParser,
+		"Docfragment": __win.DocumentFragment,
+		"Maths": __win.Math,
+		"Reg": __win.RegExp,
+		"Evt": __win.Event,
+		"Xhr": (__xhr = __win.XMLHttpRequest),
+
 		"modules": (function IIFE$BSS$modules () {
 			var _getModuleFilePath = function BSS$modules$_getModuleFilePath (moduleFullName, fileExt) {
 					return __jsFilesDirectoryPath + moduleFullName.replace(/\./g, "/") + "." + fileExt;
@@ -56,7 +90,8 @@
 					},
 					js: function BSS$modules$_loaders$js (moduleFullName) {
 						_fetchModuleFileContent(moduleFullName, "js", function BSS$modules$_fetchModuleFileContent_onSuccess (moduleContent) {
-							(new __win.Function(moduleContent)).call(__win);
+							var moduleContentExecuter = new __func(__bssName, "with (" + __bssName + ") {\n" + moduleContent + "\n}");
+							moduleContentExecuter.call(__bss, __bss);
 						});
 					}
 				},
@@ -149,9 +184,18 @@
 		}())
 	};
 
+	if (__docIsNotReady) {
+		__win.addEventListener("load", function BSS$__win$onload$listener () {
+			__bss["docHead"] = __doc.head;
+			__bss["docBody"] = __doc.body;
+			__docIsNotReady = false;
+			__win.removeEventListener("load", BSS$__win$onload$listener);
+		}, false);
+	}
+
 	// +++ require default modules +++
 	(function IIFE$_requireDefaultModules () {
-		var defaultModules = __configParams.defaultModules,
+		var defaultModules = __configParams["defaultModules"],
 			bssModules, namespace, nsModules, nsModulesCount, i;
 
 		if (defaultModules) {
@@ -167,4 +211,8 @@
 	})();
 	// --- require default modules ---
 
-})(configParams, window);
+	if ("function" === typeof __onSuccessHandler) {
+		__onSuccessHandler();
+	}
+
+}).call(this, configParams, onSuccessHandler);

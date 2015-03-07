@@ -1,4 +1,4 @@
-﻿BSS.modules.define("core.ajax",
+﻿modules.define("core.ajax",
 	[
 		"core.idsGenerator"
 	],
@@ -7,7 +7,7 @@
 
 		var _xhrs = {},
 			_createXmlHttpRequest = function BSS$core$ajax$_createXmlHttpRequest (params) {
-				var xhr = new BSS.window.XMLHttpRequest(),
+				var xhr = new Xhr(),
 					xhrHeaders = params.headers || {},
 					xhrQueryOptions = params.queryOptions || {},
 					xhrQuery = "?",
@@ -38,7 +38,7 @@
 					parseResultAsJson = xhrSucceeded && (false !== params.handleAsJson),
 					xhrResponse = {
 						success: xhrSucceeded,
-						value: parseResultAsJson ? BSS.window.JSON.parse(xhr.response || xhr.responseText) : (xhr.response || xhr.responseText)
+						value: parseResultAsJson ? Json.parse(xhr.response || xhr.responseText) : (xhr.response || xhr.responseText)
 					},
 					callback = function BSS$core$ajax$_syncReadyStateChangeHandler_callback () { return xhrResponse; };
 
@@ -67,7 +67,7 @@
 				params: {
 					method: "OPTIONS"/"GET"/"HEAD"/"POST"/"PUT"/"PATCH"/"DELETE"/"TRACE"/"CONNECT",
 					async: true/false,
-					url: BSS.routes.XXX,
+					url: routes.XXX,
 					queryOptions: {
 						fileName: "root/next/users.json",
 						maxCount: 100,

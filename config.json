@@ -1,6 +1,7 @@
 ﻿{
 	"globalApplicationName": "BSS",
 	"jsFilesDirectoryPath": "",
+	"startOnDocReady": false,
 	"defaultModules": {
 		"core": [
 			"routes",

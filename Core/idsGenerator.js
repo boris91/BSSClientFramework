@@ -1,4 +1,4 @@
-BSS.modules.define("core.idsGenerator", null, function BSS$core$modules$define_moduleGetter_idsGenerator () {
+﻿modules.define("core.idsGenerator", null, function BSS$core$modules$define_moduleGetter_idsGenerator () {
 	"use strict";
 
 	var _idLength = 32,

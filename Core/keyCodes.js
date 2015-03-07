@@ -1,4 +1,4 @@
-﻿BSS.modules.define("core.keyCodes", null, {
+﻿modules.define("core.keyCodes", null, {
 	BACKSPACE: 8,
 	TAB: 9,
 	CLEAR: 12,

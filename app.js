@@ -36,10 +36,10 @@
 					};
 				return _sendSyncXhr(__configFilePath, readConfigFile_onSuccess, readConfigFile_onError);
 			},
-			_requireMainModule = function app$_requireMainModule () {
+			_requireMainModule = function app$_requireMainModule (onSuccessHandler) {
 				var requireMainModule_onSuccess = function app$_requireMainModule_sendSyncXhr_onSuccess (xhrResponseText) {
 						try {
-							(new __win.Function("configParams", xhrResponseText)).call(__win, _configParams);
+							(new __win.Function("configParams", "onSuccessHandler", xhrResponseText)).call(__win, _configParams, onSuccessHandler);
 							return true;
 						} catch (ex) {
 							_writeToDoc(ex);
@@ -56,11 +56,8 @@
 
 		return {
 			init: function app$init (onSuccessHandler) {
-				if (!_initialized && _readConfigFile() && _requireMainModule()) {
+				if (!_initialized && _readConfigFile() && _requireMainModule(onSuccessHandler)) {
 					_initialized = true;
-					if ("function" === typeof onSuccessHandler) {
-						onSuccessHandler();
-					}
 					return true;
 				} else {
 					_initialized = false;
