@@ -1,7 +1,7 @@
-﻿modules.define("core.mediator", null, function BSS$core$modules$define_moduleGetter_mediator () {
+﻿BSS.modules.define("core.mediator", null, function BSS$core$modules$define_moduleGetter_mediator () {
 	"use strict";
 
-	var _arraySlice = ArrProto.slice,
+	var _arraySlice = BSS.ArrProto.slice,
 		_channels = {};
 
 	return {

@@ -1,4 +1,4 @@
-﻿modules.define("core.routes", null, {
+﻿BSS.modules.define("core.routes", null, {
 	/*
 		place routes here,
 		for example:

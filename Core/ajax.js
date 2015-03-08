@@ -1,13 +1,15 @@
-﻿modules.define("core.ajax",
+﻿BSS.modules.define("core.ajax",
 	[
 		"core.idsGenerator"
 	],
 	function BSS$modules$define_moduleGetter_ajax (BSS$core$idsGenerator) {
 		"use strict";
 
-		var _xhrs = {},
+		var _Xhr = BSS.Xhr,
+			_Json = BSS.Json,
+			_xhrs = {},
 			_createXmlHttpRequest = function BSS$core$ajax$_createXmlHttpRequest (params) {
-				var xhr = new Xhr(),
+				var xhr = new _Xhr(),
 					xhrHeaders = params.headers || {},
 					xhrQueryOptions = params.queryOptions || {},
 					xhrQuery = "?",
@@ -38,7 +40,7 @@
 					parseResultAsJson = xhrSucceeded && (false !== params.handleAsJson),
 					xhrResponse = {
 						success: xhrSucceeded,
-						value: parseResultAsJson ? Json.parse(xhr.response || xhr.responseText) : (xhr.response || xhr.responseText)
+						value: parseResultAsJson ? _Json.parse(xhr.response || xhr.responseText) : (xhr.response || xhr.responseText)
 					},
 					callback = function BSS$core$ajax$_syncReadyStateChangeHandler_callback () { return xhrResponse; };
 

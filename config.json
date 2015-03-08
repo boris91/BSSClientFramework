@@ -4,6 +4,7 @@
 	"startOnDocReady": false,
 	"defaultModules": {
 		"core": [
+			"dom",
 			"routes",
 			"ajax",
 			"templateEngine",
