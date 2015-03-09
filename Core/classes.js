@@ -11,7 +11,6 @@
 					}
 
 					ctor.prototype = ctorProto || {};
-					ctor.name = "BSS$" + name.split(".").join("$");
 
 					if (undefined !== ctorOwnProps) {
 						for (propName in ctorOwnProps) {
@@ -30,7 +29,6 @@
 					newCtorProto = newCtor.prototype = {},
 					propName;
 
-				newCtor.name = ctor.name;
 				newCtor.prototype = superclassCtor.prototype;//TODO: extend newCtor.prototype with props of superclassCtor.prototype
 				newCtorProto.__superclassCtor__ = superclassCtor;
 				newCtorProto.__ctor__ = ctor;
@@ -52,10 +50,17 @@
 				}
 			},
 			mix: function BSS$core$classes$mix (targetObj, sourceObjects) {
-				//TODO: implement
-			},
-			clone: function BSS$core$classes$clone (targetCtor, sourceCtor) {
-				//TODO: implement
+				var sourceObjectsCount = sourceObjects.length,
+					i, sourceObj, propName;
+
+				for (i = 0; i < sourceObjectsCount; i++) {
+					sourceObj = sourceObjects[i];
+					for (propName in sourceObj) {
+						if (sourceObj.hasOwnProperty(propName) && !targetObj.hasOwnProperty(propName)) {
+							targetObj[propName] = sourceObj[propName];
+						}
+					}
+				}
 			}
 		};
 
