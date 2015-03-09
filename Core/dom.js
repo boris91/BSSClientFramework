@@ -1,4 +1,4 @@
-﻿BSS.modules.define("core.dom", null, function () {
+﻿BSS.modules.define("core.dom", null, function BSS$modules$define_moduleGetter_dom () {
 	"use strict";
 
 	var _win = BSS.win,

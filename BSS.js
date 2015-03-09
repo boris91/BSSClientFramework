@@ -142,15 +142,17 @@
 				};
 
 			return {
-				define: function BSS$modules$define (moduleFullName, depsNames, module) {
-					var deps;
-					if (!_getModuleByFullName(moduleFullName)) {
-						if ("function" === typeof module) {
+				define: function BSS$modules$define (moduleFullName, depsNames, moduleGetter) {
+					var module = _getModuleByFullName(moduleFullName),
+						deps;
+					if (!module) {
+						if ("function" === typeof moduleGetter) {
 							deps = _loadModules(depsNames);
-							module = module.apply(__win, deps);
+							module = moduleGetter.apply(__win, deps);
 						}
 						_registerModule(moduleFullName, module);
 					}
+					return module;
 				},
 				require: function BSS$modules$require (requiredCode, callback) {
 					var callbackArgs;
