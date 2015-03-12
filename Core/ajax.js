@@ -5,11 +5,11 @@
 	function BSS$modules$define_moduleGetter_ajax (BSS$core$idsGenerator) {
 		"use strict";
 
-		var _Xhr = BSS.Xhr,
+		var BSS$Xhr = BSS.Xhr,
 			_Json = BSS.Json,
 			_xhrs = {},
 			_createXmlHttpRequest = function BSS$core$ajax$_createXmlHttpRequest (params) {
-				var xhr = new _Xhr(),
+				var xhr = new BSS$Xhr(),
 					xhrHeaders = params.headers || {},
 					xhrQueryOptions = params.queryOptions || {},
 					xhrQuery = "?",

@@ -1,9 +1,9 @@
 ﻿BSS.modules.define("core.templateEngine", null, function BSS$core$modules$define_moduleGetter_templateEngine () {
 	"use strict";
 
-	var _Func = BSS.Func,
+	var BSS$Func = BSS.Func,
 		_getTemplateEngine = function BSS$core$templateEngine$_getTemplateEngine (processedTemplateString) {
-			return new _Func("dataModel", "targetContainerId",
+			return new BSS$Func("dataModel", "targetContainerId",
 				"var resultHtml = [],\n" +
 				"	print = function BSS$core$templateEngine$_getTemplateEngine_print () {\n" +
 				"		resultHtml.push.apply(resultHtml, arguments);\n" +

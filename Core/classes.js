@@ -1,6 +1,12 @@
 ﻿BSS.modules.define("core.classes", null, function BSS$core$modules$define_moduleGetter_classes () {
+	"use strict";
+
 	var _bssModules = BSS.modules,
-		_Obj = BSS.Obj,
+		_ctorReservedProps = {
+			"__ctor__": true,
+			"__superclassCtor__": true,
+			"prototype": true
+		},
 		BSS$core$classes = {
 			declare: function BSS$core$classes$declare (name, superclassCtor, ctor, ctorProto, ctorOwnProps) {
 				return _bssModules.define(name, null, function BSS$core$classes$declare_moduleGetter () {
@@ -29,12 +35,12 @@
 					newCtorProto = newCtor.prototype = {},
 					propName;
 
-				newCtor.prototype = superclassCtor.prototype;//TODO: extend newCtor.prototype with props of superclassCtor.prototype
+				this.extend(newCtorProto, superclassCtor.prototype);
 				newCtorProto.__superclassCtor__ = superclassCtor;
 				newCtorProto.__ctor__ = ctor;
 
 				for (propName in superclassCtor) {
-					if (superclassCtor.hasOwnProperty(propName)) {
+					if (superclassCtor.hasOwnProperty(propName) && !_ctorReservedProps[propName]) {
 						newCtor[propName] = superclassCtor[propName];
 					}
 				}

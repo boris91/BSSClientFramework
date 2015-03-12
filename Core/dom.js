@@ -5,17 +5,17 @@
 		_doc = _win.document,
 		_docHead = _doc.head,
 		_docBody = _doc.body,
-		_bssCoreDom;
+		BSS$core$dom;
 
 	if ("complete" !== _doc.readyState) {
 		_win.addEventListener("load", function BSS$win$onload$listener () {
-			_docHead = _docHead || (_bssCoreDom.head = _doc.head);
-			_docBody = _docBody || (_bssCoreDom.body = _doc.body);
+			_docHead = _docHead || (BSS$core$dom.head = _doc.head);
+			_docBody = _docBody || (BSS$core$dom.body = _doc.body);
 			_win.removeEventListener("load", BSS$win$onload$listener);
 		});
 	}
 
-	_bssCoreDom = {
+	BSS$core$dom = {
 		doc: _doc,
 		head: _docHead,
 		body: _docBody,
@@ -69,5 +69,5 @@
 		}
 	};
 
-	return _bssCoreDom;
+	return BSS$core$dom;
 });

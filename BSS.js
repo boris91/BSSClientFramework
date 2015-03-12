@@ -5,7 +5,7 @@
 	var __win = this,
 		__doc = __win.document,
 		__bssName = __configParams["globalApplicationName"],
-		__obj, __xhr, __jsFilesDirectoryPath, __bss;
+		BSS$Obj, BSS$Xhr, __jsFilesDirectoryPath, __bss;
 
 	if (__win.hasOwnProperty(__bssName)) {
 		return;
@@ -22,8 +22,8 @@
 
 		"win": __win,
 
-		"Obj": (__obj = __win.Object),
-		"ObjProto": __obj.prototype,
+		"Obj": (BSS$Obj = __win.Object),
+		"ObjProto": BSS$Obj.prototype,
 		"Arr": __win.Array,
 		"ArrProto": __win.Array.prototype,
 		"Func": __win.Function,
@@ -45,7 +45,7 @@
 		"Maths": __win.Math,
 		"Reg": __win.RegExp,
 		"Evt": __win.Event,
-		"Xhr": (__xhr = __win.XMLHttpRequest),
+		"Xhr": (BSS$Xhr = __win.XMLHttpRequest),
 
 		"modules": (function IIFE$BSS$modules () {
 			var _getModuleFilePath = function BSS$modules$_getModuleFilePath (moduleFullName, fileExt) {
@@ -66,7 +66,7 @@
 					}
 				},
 				_fetchModuleFileContent = function BSS$modules$_fetchModuleFileContent (moduleFullName, fileExt, onSuccess) {
-					var xhr = new __xhr();
+					var xhr = new BSS$Xhr();
 					xhr.open("GET", _getModuleFilePath(moduleFullName, fileExt), false);
 					xhr.send(null);
 					if (200 === xhr.status) {
@@ -175,7 +175,7 @@
 						moduleShortName = modulePathChain.pop();
 						namespace = _getModuleByFullName(modulePathChain.join("."));
 						delete namespace[moduleShortName];
-					} while (0 < modulePathChain.length && 0 === __obj.getOwnPropertyNames(namespace).length);
+					} while (0 < modulePathChain.length && 0 === BSS$Obj.getOwnPropertyNames(namespace).length);
 				}
 			};
 		}())
