@@ -5,6 +5,7 @@
 		_doc = _win.document,
 		_docHead = _doc.head,
 		_docBody = _doc.body,
+		_tempNode = _doc.createElement("tmp"),
 		BSS$core$dom;
 
 	if ("complete" !== _doc.readyState) {
@@ -51,6 +52,23 @@
 
 			return node;
 		},
+		createFromOuterHtml: function BSS$core$dom$createFromString (nodeOuterHtml, parentNode) {
+			var nodes, nodesCount, i;
+
+			_tempNode.innerHTML = nodeOuterHtml;
+			nodes = _tempNode.children;
+
+			if (parentNode) {
+				nodesCount = nodes.length;
+				for (i = 0; i < nodesCount; i++) {
+					parentNode.appendChild(nodes[i]);
+				}
+			}
+
+			_tempNode.innerHTML = "";
+
+			return nodes;
+		},
 		createFragment: function BSS$core$dom$createFragment (nodesData /* Array of objects: { tagName, properties, children } */, parentNode) {
 			var docFragment = _doc.createDocumentFragment(),
 				nodesCount = nodesData.length,
@@ -66,6 +84,14 @@
 			}
 
 			return docFragment;
+		},
+
+		copy: function BSS$core$dom$copy (node, parentNode, makeItShallow) {
+			var nodeCopy = node.cloneNode(!makeItShallow);
+			if (parentNode) {
+				parentNode.appendChild(nodeCopy);
+			}
+			return nodeCopy;
 		}
 	};
 
