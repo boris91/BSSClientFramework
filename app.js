@@ -10,59 +10,67 @@
 
 	__win["app"] = (function IIFE$app () {
 		var _initialized = false,
+			_initInProgress = false,
 			_configParams = null,
-			_sendSyncXhr = function app$_sendSyncXhr (url, onSuccess, onError) {
+			_sendAsyncXhr = function app$_sendAsyncXhr (url, onSuccess, onError) {
 				var xhr = new __win.XMLHttpRequest();
-				xhr.open("GET", url, false);
+				xhr.open("GET", url, true);
+				xhr.onreadystatechange = function app$_sendAsyncXhr$onreadystatechange () {
+					if (4 === this.readyState) {
+						if (200 === xhr.status) {
+							onSuccess(xhr.responseText);
+						} else {
+							onError(xhr.responseText);
+						}
+					}
+				};
 				xhr.send(null);
-				return (200 === xhr.status ? onSuccess : onError)(xhr.responseText);
 			},
 			_writeToDoc = function app$_writeToDoc (text) {
 				__win.document.write(text);
 			},
-			_readConfigFile = function app$_readConfigFile () {
-				var readConfigFile_onSuccess = function app$_readConfigFile_sendSyncXhr_onSuccess (xhrResponseText) {
+			_readConfigFile = function app$_readConfigFile (onSuccessHandler, onErrorHandler) {
+				var readConfigFile_onSuccess = function app$_readConfigFile_sendAsyncXhr_onSuccess (xhrResponseText) {
 						try {
 							_configParams = __win.JSON.parse(xhrResponseText);
-							return true;
+							onSuccessHandler();
 						} catch (ex) {
+							onErrorHandler();
 							_writeToDoc(ex);
-							return false;
 						}
 					},
-					readConfigFile_onError = function app$_readConfiFile_sendSyncXhr_onError (xhrResponseText) {
+					readConfigFile_onError = function app$_readConfiFile_sendAsyncXhr_onError (xhrResponseText) {
 						_writeToDoc(xhrResponseText);
-						return false;
 					};
-				return _sendSyncXhr(__configFilePath, readConfigFile_onSuccess, readConfigFile_onError);
+				_sendAsyncXhr(__configFilePath, readConfigFile_onSuccess, readConfigFile_onError);
 			},
 			_requireMainModule = function app$_requireMainModule (onSuccessHandler) {
-				var requireMainModule_onSuccess = function app$_requireMainModule_sendSyncXhr_onSuccess (xhrResponseText) {
+				var requireMainModule_onSuccess = function app$_requireMainModule_sendAsyncXhr_onSuccess (xhrResponseText) {
 						try {
 							(new __win.Function("configParams", "onSuccessHandler", xhrResponseText)).call(__win, _configParams, onSuccessHandler);
-							return true;
 						} catch (ex) {
 							_writeToDoc(ex);
-							return false;
 						}
 					},
-					requireMainModule_onError = function app$_requireMainModule_sendSyncXhr_onError (xhrResponseText) {
+					requireMainModule_onError = function app$_requireMainModule_sendAsyncXhr_onError (xhrResponseText) {
 						_writeToDoc(xhrResponseText);
-						return false;
 					},
 					mainModuleUrl = _configParams["globalApplicationName"] + ".js";
-				return _sendSyncXhr(mainModuleUrl, requireMainModule_onSuccess, requireMainModule_onError);
+
+				_sendAsyncXhr(mainModuleUrl, requireMainModule_onSuccess, requireMainModule_onError);
 			};
 
 		return {
 			init: function app$init (onSuccessHandler) {
-				if (!_initialized && _readConfigFile() && _requireMainModule(onSuccessHandler)) {
-					_initialized = true;
-					return true;
-				} else {
-					_initialized = false;
-					__win.alert("Application initialization failed!");
-					return false;
+				if (!_initInProgress && !_initialized) {
+					_initInProgress = true;
+					_readConfigFile(function app$_readConfigFile_onSuccess () {
+						_requireMainModule(onSuccessHandler);
+						_initialized = true;
+						_initInProgress = false;
+					}, function app$_readConfigFile_onError () {
+						_initInProgress = false;
+					});
 				}
 			}
 		};
