@@ -1,0 +1,17 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>BSSClientFramework test page.</title>
+</head>
+<body>
+	<script type="text/javascript" charset="utf-8" src="app.js"></script>
+	<script type="text/javascript" charset="utf-8">
+		app.init(function app$init$onSuccessHandler () {
+			BSS.modules.require("tests.core.ajax", function (BSS$tests$core$ajax) {
+				BSS$tests$core$ajax.send("GetProducts", true);
+				BSS$tests$core$ajax.send("GetProducts", false);
+			});
+		});
+	</script>
+</body>
+</html>

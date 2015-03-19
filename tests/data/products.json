@@ -1,0 +1,40 @@
+{
+	"products": [
+		{
+			"id": "MgiF84eK0SiF9Yy57K9F4QB5GeMGFAqU",
+			"name": "Apple",
+			"age": 1,
+			"country": "Andorra"
+		},
+		{
+			"id": "2yyoUaoPimMeIS6iigLGJVPfzvmWQhja",
+			"name": "Banana",
+			"age": 2,
+			"country": "Belarus"
+		},
+		{
+			"id": "rHM6rtiuSWlsg8tAyYjd9tKapzKRLsi1",
+			"name": "Cherry",
+			"age": 3,
+			"country": "Croatia"
+		},
+		{
+			"id": "aKXbZvDu1xW1aETJvq1y0IXNkqoMsPNh",
+			"name": "Damson",
+			"age": 4,
+			"country": "Denmark"
+		},
+		{
+			"id": "uXxU39dsA9dEnNySduy0TcQy189FDqgf",
+			"name": "Eggplant",
+			"age": 5,
+			"country": "England"
+		},
+		{
+			"id": "XIo6IXcvFgpJfAUmvO474UqvImYTj6sF",
+			"name": "Feijoa",
+			"age": 6,
+			"country": "France"
+		}
+	]
+}
